@@ -1,0 +1,4 @@
+{:deps {org.clojure/clojure {:mvn/version "1.11.0"}
+        org.clojars.cartesiantheatrics/manifold3d {:mvn/version "1.0.8"}
+        sicmutils/sicmutils   {:mvn/version "0.22.0"}
+        plexus/plexus {:local/root "../plexus"}}}
