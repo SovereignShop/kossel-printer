@@ -36,3 +36,6 @@
             (for [x (range (- pi) (- length pi) step-size)]
               (f x)))
            (f (- length pi))))))
+
+(defn in->mm [inches]
+  (* inches 25.4))
