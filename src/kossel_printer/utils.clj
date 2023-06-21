@@ -8,7 +8,7 @@
 (defn circle-pts [r res]
   (let [pts (for [i (range res)]
               (-> tf/identity-tf
-                  (tf/rotate :z (* i (/ TT res)))
+                  (tf/rotate :z (* i (/ (* 2 pi) res)))
                   (tf/go-forward r :x)
                   (tf/translation-vector)
                   (subvec 0 2)))]
