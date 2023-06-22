@@ -2,6 +2,7 @@
   (:require
    [plexus.utils :as pu]
    [plexus.transforms :as tf]
+   [clojure.java.io :as io]
    [clj-manifold3d.core :as m]
    [kossel-printer.utils :as u]
    [kossel-printer.math :refer [pi pi|2 pi|3 pi|4 pi|5 pi|6 two-pi
@@ -36,7 +37,7 @@
 (def belt-shaft-mask-offset 19)
 (def belt-shaft-width 30)
 
-(def printer-model
+(def ^:export-model printer-model
   (extrude
    (result :name :printer-model :expr :body)
    (frame :cross-section (m/square 20.4 20.4 true) :name :body)
@@ -172,7 +173,7 @@
    (transform :replace (lookup-transform printer-model :k0/bed))
    (forward :length 100 :center true)))
 
-(def build-plate-support
+(def ^:export-mount build-plate-support
   (extrude
    (result :name :build-plate-support :expr
            (difference :build-plate-support-body :build-plate-mask
@@ -221,7 +222,7 @@
 (def psu-x-distance-between-bolts 50)
 (def psu-y-distance-between-bolts 150)
 
-(def psu-mount
+(def ^:export-model psu-mount
   (extrude
    (result :name :psu-mount
            :expr (difference :psu-mount-body :psu-bolt-mask :psu-mount-bolt-mask))
@@ -269,7 +270,7 @@
     (forward :length 5))))
 
 
-(def extruder-mount
+(def ^:export-model extruder-mount
   (extrude
    (result :name :extruder-mount
            :expr (difference :extruder-mount-body :stepper-mask :bolt-mask))
@@ -318,7 +319,7 @@
     (forward :length 20 :center true))
    (forward :length 25)))
 
-(def board-box
+(def ^:export-model board-box
   (extrude
    (result :name :board-mount
            :expr (difference (union :board-mount-body :bottom-wall)
@@ -442,7 +443,7 @@
     (rotate :x pi)
     (forward :length (+ 4 1.6)))))
 
-(def power-switch-box
+(def ^:export-model power-switch-box
   (extrude
    (result :name :power-switch-box
            :expr (union (difference :power-switch-box-arm :power-switch-box-mask :bolt-mask)
@@ -611,7 +612,7 @@
          (left :angle pi|6 :curve-radius 3)
          (forward :length 65)))))))
 
-(def tower-support-top
+(def ^:export-model tower-support-top
   (m/difference (get-frame tower-support-top-impl :tower-support-top)
                 (get-frame printer-model :body)))
 
@@ -760,7 +761,7 @@
    (forward :length 6)
    (forward :length 8 :to [:belt-mask])))
 
-(def split-carriage-mount
+(def ^:export-model split-carriage-mount
   (let [[left right] (m/split-by-plane (:carriage-mount (:frames carriage-mount))
                                        [0 1 0] 8.05)]
     (m/union (m/translate left [0 1 0])
@@ -863,14 +864,14 @@
         (rotate :x (* sign (- (+ pi|6 pi|3))))
         (forward :length 10)])))))
 
-(def base-tower-support
+(def ^:export-model base-tower-support
   (m/difference (get-frame tower-support :tower-support)
                 (get-frame printer-model :carriage-mask)
                 (get-frame printer-model :side-rod-mask)
                 (get-frame printer-model :body)
                 (get-frame printer-model :heated-bed-mask)))
 
-(def build-plate-support-2
+(def ^:export-model build-plate-support-2
   (extrude
 
    (result :name :build-plate-support
@@ -914,7 +915,7 @@
        (forward :length 5)
        #_(show-coordinate-frame))))))
 
-(def carriage-heat-shield-mount
+(def ^:export-model carriage-heat-shield-mount
   (extrude
    (result :name :carriage-heat-shield-mount
            :expr (difference :body :mask))
@@ -944,7 +945,7 @@
     (rotate :x pi)
     (forward :length 10))))
 
-(def middle-heat-shield-mount
+(def ^:export-model middle-heat-shield-mount
   (extrude
    (result :name :middle-heat-shield-mount
            :expr (difference :mount-body :mount-mask))
@@ -1003,17 +1004,6 @@
   (m/union (m/circle (+ heat-sink-r 1.5))
            (m/square (+ heat-block-width 3)
                      (+ heat-block-length 3))))
-
-
-(def extension-shape
-  (m/difference
-   (m/union
-    (-> (m/square fan-w 2)
-        (m/translate [0 -14.3]))
-    (m/offset opening-mask 1.5))
-   opening-mask
-   (-> (m/square 100 100)
-       (m/translate [0 50]))))
 
 (defn make-opening-shape [offset]
   (let [w (+ fan-w 8)
@@ -1254,7 +1244,7 @@
    (result :name :extruder-assembly-body-fisheye-mechanical-base
            :expr
            (difference
-            (hull [:extruder-assembly-base-body])
+            (hull (union :extruder-assembly-base-body))
             (union
              (for [i (range 3)]
                (->> (union :extruder-assembly-base-mask)
@@ -1381,7 +1371,7 @@
     (rotate :y (- pi|6))
     (forward :length 50))))
 
-(def extruder-assembly
+(def ^:export-model extruder-assembly
   (extrude
    (result :name :extruder-assembly
            :expr (difference :extruder-assembly-body-fisheye
@@ -1389,10 +1379,35 @@
    (:forms extruder-assembly-body-fisheye)
    (:forms coupling-mask-segment)))
 
-(def extruder-coupling
+(def ^:export-model extruder-coupling
   (extrude
    (result :name :extruder-coupling
            :expr (difference (intersection :center-triangle-body :coupling-mask-segment)
                              :extruder-mask))
    (:forms extruder-assembly-body-fisheye)
    (:forms coupling-mask-segment)))
+
+(def ^:export-model full-printer-model
+  (m/union (get-frame printer-model :printer-model)
+           base-tower-support
+           tower-support-top))
+
+(defn export-models [ns]
+  (doseq [[_ x] (ns-map ns)
+          :let [var-meta (meta x)]
+          :when (:export-model var-meta)]
+    (let [filename (-> var-meta :name name (str ".glb"))
+          m @x]
+      (if (m/manifold? m)
+        (m/export-mesh (m/get-mesh m) (format "out/glb/%s" filename))
+        (let [manifold (get (:frames m) (:main-frame m))]
+          (m/export-mesh (m/get-mesh manifold) (format "out/glb/%s" filename)))))))
+
+(defn -main [& args]
+  (export-models *ns*))
+
+(comment
+
+  (export-models *ns*)
+
+  )
