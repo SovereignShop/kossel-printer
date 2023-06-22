@@ -1159,8 +1159,8 @@
          (rotate :y rot)
          (forward :length 4)
          (set :cross-section (m/union
-                              (m/translate (m/circle 6/2) [11 0])
-                              (m/translate (m/circle 6/2) [-11 0])))
+                              (m/translate (m/circle 6/2 6) [11 0])
+                              (m/translate (m/circle 6/2 6) [-11 0])))
          (forward :length 60)))))
 
     (forward :length 2))))
@@ -1392,22 +1392,26 @@
            base-tower-support
            tower-support-top))
 
-(defn export-models [ns]
+(defn export-models [ns file-ext]
+  (-> (io/file (format "out/%s" file-ext)) (.mkdirs))
   (doseq [[_ x] (ns-map ns)
           :let [var-meta (meta x)]
           :when (:export-model var-meta)]
-    (let [filename (-> var-meta :name name (str ".glb"))
+    (let [filename (-> var-meta :name name (str (format ".%s" file-ext)))
           m @x]
       (if (m/manifold? m)
-        (m/export-mesh (m/get-mesh m) (format "out/glb/%s" filename))
-        (let [manifold (get (:frames m) (:main-frame m))]
-          (m/export-mesh (m/get-mesh manifold) (format "out/glb/%s" filename)))))))
+        (m/export-mesh (m/get-mesh (cond-> m (= file-ext "3ds") (m/rotate [-90 0 0]))) (format "out/%s/%s" file-ext filename))
+        (let [manifold (cond-> (get (:frames m) (:main-frame m))
+                         (= file-ext "3ds") (m/rotate [-90 0 0]))]
+          (m/export-mesh (m/get-mesh manifold) (format "out/%s/%s" file-ext filename)))))))
 
 (defn -main [& args]
   (export-models *ns*))
 
 (comment
 
-  (export-models *ns*)
+  (export-models *ns* "3ds")
+  (export-models *ns* "f3z")
+  (export-models *ns* "stl")
 
   )
