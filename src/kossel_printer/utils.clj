@@ -3,7 +3,8 @@
    [kossel-printer.math :refer [pi TT T T|2 T|3 T|4 T|5 T|6]]
    [sicmutils.env :as e]
    [sicmutils.calculus.derivative :as cd]
-   [plexus.transforms :as tf]))
+   [plexus.transforms :as tf]
+   [clj-manifold3d.core :as m]))
 
 (defn circle-pts [r res]
   (let [pts (for [i (range res)]
@@ -13,6 +14,16 @@
                   (tf/translation-vector)
                   (subvec 0 2)))]
     pts))
+
+(defn ovol
+  ([rx ry]
+   (ovol rx ry 100))
+  ([rx ry n-steps]
+   (m/cross-section
+    (for [x (range n-steps)]
+      (let [d (* x (/ (* 2 Math/PI) n-steps))]
+        [(* rx (Math/cos d))
+         (* ry (Math/sin d))])))))
 
 (defn cos-wave-points
   ([width height]

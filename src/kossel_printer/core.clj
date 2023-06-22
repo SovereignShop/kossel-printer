@@ -980,3 +980,417 @@
        (translate :x 15)
        (rotate :x pi)
        (forward :length 1))))))
+
+
+(def fan-w 40)
+(def fan-l 10)
+(def fan-h 40)
+(def heat-sink-r 12)
+(def joint-r1 6)
+(def joint-r2 8)
+(def heat-sink-height 43)
+(def heat-block-width 11.5)
+(def heat-block-length 24)
+(def heat-block-height 20)
+(def heat-block-offset-x (/ (- 4 (/ 11.5 2)) 2))
+(def heat-block-offset-y (/ (- 8 (/ 24 2)) 2))
+
+(def heat-break-height 20)
+
+(def mag-r 6)
+
+(def opening-mask
+  (m/union (m/circle (+ heat-sink-r 1.5))
+           (m/square (+ heat-block-width 3)
+                     (+ heat-block-length 3))))
+
+
+(def extension-shape
+  (m/difference
+   (m/union
+    (-> (m/square fan-w 2)
+        (m/translate [0 -14.3]))
+    (m/offset opening-mask 1.5))
+   opening-mask
+   (-> (m/square 100 100)
+       (m/translate [0 50]))))
+
+(defn make-opening-shape [offset]
+  (let [w (+ fan-w 8)
+        side-length w]
+    (m/cross-section
+     (butlast
+      (points
+       :axes [:x :y]
+       (frame :name :origin :curve-radius (- 3 offset))
+       (rotate :z (+ pi|3 pi|6))
+       (translate :x offset)
+       (rotate :x pi|2)
+       (forward :length (/ w 2))
+       (right :angle (+ pi|2 pi|6))
+       (forward :length side-length)
+       (right :angle (+ pi|2 pi|6))
+       (forward :length side-length)
+       (right :angle (+ pi|2 pi|6))
+       (forward :length side-length))))))
+
+(def heatbreak-body-length 26.2)
+(def heatbreak-body-radius (/ 22.2 2))
+(def heatbreak-joint-offset 4.2)
+(def heatbreak-joint-radius-1 8.2)
+(def heatbreak-joint-radius-2 5.8)
+(def heatbreak-joint-length 6)
+(def heatbreak-gap-length 3)
+(def fan-radius (/ 37.5 2))
+
+(def coupling-shape
+  (m/translate
+   (m/hull (-> (m/square (+ heatbreak-joint-radius-1 33) 1 true)
+               (m/translate [0 1/2]))
+           (-> (m/square (+ heatbreak-joint-radius-1 33) 1 true)
+               (m/translate [0 22])))
+   [0 -8]))
+
+(def heat-block-sock-skin-width 1.5)
+
+(def heat-block-model
+  (extrude
+   (result :name :heat-block-model :expr :heat-block)
+   (frame :cross-section (m/square (+ heat-block-width (* 2 heat-block-sock-skin-width))
+                                   (+ heat-block-length (* 2 heat-block-sock-skin-width))
+                                   true)
+         :name :heat-block)
+   (translate :x heat-block-offset-x
+              :y heat-block-offset-y)
+   (forward :length heat-block-height)))
+
+(def extruder-mask
+  (extrude
+   (result :name :extruder-mask
+           :expr (union :extruder-mask-heatbreak :heatbreak-joint-mask :extruder-fan-mask
+                        :cable-slot :fan-bolt-holes :coupling-bolt-mask))
+   (frame :cross-section (-> (m/square (+ heat-block-width 7.5)
+                                       (+ heat-block-length 6)
+                                       true)
+                             (m/translate [heat-block-offset-x
+                                           heat-block-offset-y])
+                             (m/union (m/hull (m/circle (+ heatbreak-body-radius 2) 60)
+                                              (-> (m/square 24 10 true)
+                                                  (m/translate [0 -17])))))
+          :name :extruder-mask-heatbreak)
+   (forward :length heat-block-height)
+   (forward :length (- (+ heatbreak-gap-length (/ heatbreak-body-length 2))
+                       heatbreak-gap-length))
+   (set :cross-section (m/circle (+ heatbreak-body-radius 2) 50))
+   (forward :length heatbreak-gap-length)
+
+   (branch
+    :from :extruder-mask-heatbreak
+    :with []
+    (frame :cross-section (m/circle 4) :name :cable-slot)
+    (translate :y (- (+ 13 (/ heatbreak-body-radius 2))))
+    (forward :length 40))
+
+   (branch
+    :from :extruder-mask-heatbreak
+    :with []
+    (frame :cross-section (m/circle fan-radius 150) :name :extruder-fan-mask)
+    (rotate :x (- pi|2))
+    (translate :z (- (+ 20 heatbreak-body-radius)))
+
+    ;; Mount bolt holes
+    (segment
+     (for [rot [(+ pi|4 pi) (+ pi|4 pi|2 pi) (+ pi|4 pi pi) (+ pi|4 pi pi pi|2)]]
+       (branch
+        :from :extruder-fan-mask
+        :with []
+        (frame :cross-section (m/circle 3/2) :name :fan-bolt-holes)
+        (rotate :z rot)
+        (translate :x (+ 2 2.1 fan-radius))
+        (forward :length 25))))
+
+    (hull
+     (hull
+      (forward :length 20)
+      (translate :z (+ 2 heatbreak-body-radius))
+      (set :cross-section (u/ovol (/ (* 2 (+ heatbreak-body-radius 2))
+                                     2)
+                                  (/ (+ 4 heatbreak-body-length)
+                                     2)))
+      (forward :length 1))
+     (translate :z (+ 2 heatbreak-body-radius))
+     (set :cross-section (u/ovol (/ (* 2 (- heatbreak-body-radius 1.5))
+                                    2)
+                                 (/ (+ 15 heatbreak-body-length)
+                                    2)) )
+     (translate :y 4)
+     (forward :length 1))
+    (forward :length 20))
+
+   (branch
+    :from :extruder-mask-heatbreak
+    :with []
+    (frame :name :heatbreak-joint-mask
+           :cross-section (m/circle (+ heatbreak-body-radius 2) 50))
+    (forward :length (/ heatbreak-body-length 2))
+    (loft
+     (forward :length 0.01)
+     (set :cross-section (m/circle heatbreak-joint-radius-1 50))
+     (translate :z heatbreak-joint-offset)
+     (forward :length 0.01))
+    (forward :length 3)
+    (set :cross-section (m/circle heatbreak-joint-radius-2 50))
+
+    (branch
+     :from :heatbreak-joint-mask
+     (rotate :x (- pi|2))
+     (rotate :z pi)
+     (save-transform :frame :heatbreak-joint-mask :name ::coupling-junction))
+
+    (forward :length heatbreak-joint-length)
+    (set :cross-section (m/circle heatbreak-joint-radius-1))
+    (forward :length 2)
+    (save-transform :frame :heatbreak-joint-mask :name ::bolt-hole)
+
+    (branch
+     :from :heatbreak-joint-mask
+     :with []
+     (frame :name :coupling-bolt-mask)
+     (translate :z (- 5))
+     (rotate :x pi|2)
+     (segment
+      (for [rot [0 pi]]
+        (branch
+         :from :coupling-bolt-mask
+         (set :cross-section (m/union
+                              (m/translate (m/circle (+ 1/4 3/2)) [11 0])
+                              (m/translate (m/circle (+ 1/4 3/2)) [-11 0]))
+              :fn 6)
+         (rotate :y rot)
+         (forward :length 4)
+         (set :cross-section (m/union
+                              (m/translate (m/circle 6/2) [11 0])
+                              (m/translate (m/circle 6/2) [-11 0])))
+         (forward :length 60)))))
+
+    (forward :length 2))))
+
+(def coupling-cube
+  (extrude
+   (result :name :coupling-cube :expr (difference :body :bolt-mask))
+   (frame :name :origin :fn 50)
+   (branch
+    :from :origin
+    (frame :cross-section (m/square 20 20 true) :name :body)
+    (forward :length 20))
+   (branch
+    :from :origin
+    (frame :cross-section (m/circle 5) :name :bolt-mask)
+    (translate :z 10)
+    (for [i (range 2)]
+      (branch
+       :from :bolt-mask
+       (rotate :x (+ pi|2 (* i pi|2)))
+       (translate :z -10)
+       (forward :length (- 20 1.6))
+       (set :cross-section (m/circle 1.6))
+       (forward :length 1.6))))))
+
+(def bltouch-mask-shape
+  (m/hull (m/circle 7 6)
+          (-> (m/square 14 7 true)
+              (m/translate [0 -5.0]))))
+
+(def bltouch-top-shape
+  (m/hull (-> (m/circle (+ 2.5 3/2))
+              (m/translate [-9 0]))
+          (m/square 8 11.5 true)
+          (-> (m/circle (+ 2.5 3/2))
+              (m/translate [9 0]))))
+
+(def bltouch-model
+  (extrude
+   (result :name :bltouch-model :expr :bltouch-body)
+   (frame :cross-section (m/circle 1) :name :bltouch-body :fn 60)
+   (forward :length 5)
+   (set :cross-section (m/circle 3))
+   (hull
+    (forward :length 0.01)
+    (set :cross-section bltouch-mask-shape)
+    (translate :z 1.98)
+    (forward :length 0.01))
+   (forward :length 33)
+   (set :cross-section bltouch-top-shape)
+   (forward :length 2)))
+
+(def abl-mask
+  (let [angle (/ pi 7)]
+    (extrude
+     (result :name :abl-mask :expr (difference :auto-bed-level-body :auto-bed-level-mask))
+     (frame :cross-section bltouch-mask-shape :name :auto-bed-level-mask)
+     (frame :cross-section bltouch-top-shape :name :auto-bed-level-body)
+
+     (rotate :z (- (+ pi|6 pi|2)))
+     (translate :y 10.0 :z -2)
+     (rotate :x (- angle))
+     (forward :z 9.0 :gap [:auto-bed-level-body])
+     (forward :length 29.5)
+     (forward :length 0.01 :to [:auto-bed-level-mask])
+     (set :cross-section (m/union bltouch-mask-shape bltouch-top-shape) :to [:auto-bed-level-mask])
+     (translate :z -0.025)
+     (forward :length 10 :to [:auto-bed-level-mask] :branch? true)
+     (to :models [:auto-bed-level-mask]
+         (rotate :x pi)
+         (translate :z 9.9)
+         (set :cross-section (m/union
+                              (-> (m/circle 3/2)
+                                  (m/translate [9 0]))
+                              (-> (m/circle 3/2)
+                                  (m/translate [-9 0]))))
+         (forward :length 15)))))
+
+(def extruder-assembly-body-fisheye-mechanical-base
+  (extrude
+   (result :name :extruder-assembly-body-fisheye-mechanical-base
+           :expr (difference
+                  (hull
+                   (for [i (range 3)]
+                     (->> (model :extruder-assembly-base-body)
+                          (rotate :z (* i (* 2/3 pi)))
+                          (translate :x 39))))
+                  (union
+                   (for [i (range 3)]
+                     (->> (model :extruder-assembly-base-mask)
+                          (rotate :z (* i (* 2/3 pi)))
+                          (translate :x 39))))))
+
+   (frame :cross-section opening-mask :name :extruder-assembly-base-mask)
+   (frame :cross-section (m/circle 45 3) :name :extruder-assembly-base-body)
+
+   ;; base hexagon
+   (set :cross-section (m/square 0.1 35)
+        :to [:extruder-assembly-base-body])
+   (set :cross-section (m/square 35 17)
+        :to [:extruder-assembly-base-mask])
+   (forward :length 13 :to [:extruder-assembly-base-body])
+
+   (branch
+    :from :extruder-assembly-base-mask
+    :with [:extruder-assembly-base-mask]
+    (set :cross-section (-> (m/circle 3/2)
+                            (m/translate [0 8])))
+    (translate :z 17.7 :x -4)
+    (rotate :x (- pi|2))
+    (save-transform :frame :extruder-assembly-base-mask :name ::rod-mount-holes)
+    (forward :length 100 :center true))
+
+   (to
+    :models [:extruder-assembly-base-mask]
+    (set :cross-section (m/difference
+                         (m/square 26 60)
+                         (m/square 26 30)))
+    (forward :length 13.5))))
+
+(def extruder-assembly-body-fisheye
+  (extrude
+   (result :name :extruder-assembly-body-fisheye
+           :expr
+           (union (difference :auto-bed-level-body
+                              :auto-bed-level-mask
+                              :extruder-mask-heatbreak
+                              :fan-hole-mask)
+                  (difference :center-triangle-body
+                              :auto-bed-level-mask
+                              :extruder-mask)
+                  (difference (union :extruder-assembly-body-fisheye-mechanical-base :fan-hole-body)
+                              :fan-hole-mask
+                              :auto-bed-level-mask
+                              :extruder-mask-heatbreak)))
+   (frame :name :origin)
+
+   (branch
+    :from :origin
+    (rotate :z (- pi|6))
+    (:forms extruder-mask))
+
+   (branch
+    :from :origin
+    (:forms abl-mask))
+
+   (branch
+    :from :origin
+    (:forms extruder-assembly-body-fisheye-mechanical-base))
+
+   (branch
+    :from :origin
+    (frame :name :fan-hole-body :fn 50)
+    (frame :name :fan-hole-mask)
+
+    (segment
+     (for [i (range 1 2)]
+       (branch
+        :from :fan-hole-body
+        (set :cross-section (m/square 7 22)
+             :to [:fan-hole-body])
+        (set :cross-section (m/square 5 20)
+             :to [:fan-hole-mask])
+        (rotate :z (* i (/ (* 2 pi) 3)))
+        (translate :x 18.0)
+        (forward :length 1/2)
+        (translate :x 8 :z 4)
+        (forward :length 1/2)
+        (hull)
+        (forward :length 1/2)
+        (translate :x -1.6 :z 8)
+        (when (zero? i)
+          (translate :y 6))
+
+        (set :cross-section (m/square (- 15.2 (* 2 1.3) 2.2) (- 19.2 (* 2 1.3) 2.2)) :to [:fan-hole-mask])
+        (set :cross-section (m/square (- 15.2 2.5) (- 19.2 2.5)) :to [:fan-hole-body])
+        (forward :length 0.1)
+        (hull)
+        (if (zero? i)
+          (forward :length 12.2)
+          (forward :length 1.5))
+        (when (zero? i)
+          (up :angle pi|4 :curve-radius 22/2))
+        (forward :length 0.01 :to [:fan-hole-mask])
+        (forward :length 6)))))
+
+   (branch
+    :from :origin
+    (rotate :z (- pi|6))
+    (frame :cross-section (make-opening-shape 0)
+          :name :center-triangle-body)
+    (frame :cross-section (m/circle 4)
+          :name :tmp-mask)
+    (translate :y -18.3 :to [:center-triangle-body])
+    (forward :length (+ 26 fan-h))
+    (save-transform :frame :center-triangle-body :name :extruder-assembly-top))))
+
+(def coupling-mask-segment
+  (extrude
+   (result :name :coupling-mask-segment :expr :coupling-mask)
+   (frame :cross-section coupling-shape :name :coupling-mask)
+   (to
+    :models [:coupling-mask]
+    (transform :transform (lookup-transform extruder-mask ::coupling-junction))
+    (rotate :y (- pi|6))
+    (forward :length 50))))
+
+(def extruder-assembly
+  (extrude
+   (result :name :extruder-assembly
+           :expr (difference :extruder-assembly-body-fisheye
+                             :coupling-mask-segment))
+   (segment extruder-assembly-body-fisheye)
+   (segment coupling-mask-segment)))
+
+(def extruder-coupling
+  (extrude
+   (mask :name :mask :fn 100)
+   (result :name :extruder-coupling
+           :expr (difference (intersection :center-triangle-body :coupling-mask-segment)
+                             :extruder-mask))
+   (segment extruder-assembly-body-fisheye)
+   (segment coupling-mask-segment)))
