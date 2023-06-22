@@ -1252,27 +1252,31 @@
 (def extruder-assembly-body-fisheye-mechanical-base
   (extrude
    (result :name :extruder-assembly-body-fisheye-mechanical-base
-           :expr (difference
-                  (hull
-                   (for [i (range 3)]
-                     (->> (model :extruder-assembly-base-body)
-                          (rotate :z (* i (* 2/3 pi)))
-                          (translate :x 39))))
-                  (union
-                   (for [i (range 3)]
-                     (->> (model :extruder-assembly-base-mask)
-                          (rotate :z (* i (* 2/3 pi)))
-                          (translate :x 39))))))
+           :expr
+           (difference
+            (hull [:extruder-assembly-base-body])
+            (union
+             (for [i (range 3)]
+               (->> (union :extruder-assembly-base-mask)
+                    (translate :x 39)
+                    (rotate :z (* i (* 2/3 pi))))))))
 
    (frame :cross-section opening-mask :name :extruder-assembly-base-mask)
    (frame :cross-section (m/circle 45 3) :name :extruder-assembly-base-body)
 
    ;; base hexagon
-   (set :cross-section (m/square 0.1 35)
+   (set :cross-section (m/square 0.1 35 true)
         :to [:extruder-assembly-base-body])
-   (set :cross-section (m/square 35 17)
+   (set :cross-section (m/square 35 17 true)
         :to [:extruder-assembly-base-mask])
-   (forward :length 13 :to [:extruder-assembly-base-body])
+
+   (for [i (range 3)]
+     (branch
+      :from :extruder-assembly-base-body
+      :with [:extruder-assembly-base-body]
+      (rotate :z (* i 2/3 pi))
+      (translate :x 39)
+      (forward :length 13 :to [:extruder-assembly-base-body])))
 
    (branch
     :from :extruder-assembly-base-mask
@@ -1287,8 +1291,8 @@
    (to
     :models [:extruder-assembly-base-mask]
     (set :cross-section (m/difference
-                         (m/square 26 60)
-                         (m/square 26 30)))
+                         (m/square 26 60 true)
+                         (m/square 26 30 true)))
     (forward :length 13.5))))
 
 (def extruder-assembly-body-fisheye
@@ -1323,47 +1327,46 @@
 
    (branch
     :from :origin
-    (frame :name :fan-hole-body :fn 50)
+    (frame :name :fan-hole-body)
     (frame :name :fan-hole-mask)
 
-    (segment
-     (for [i (range 1 2)]
-       (branch
-        :from :fan-hole-body
-        (set :cross-section (m/square 7 22)
-             :to [:fan-hole-body])
-        (set :cross-section (m/square 5 20)
-             :to [:fan-hole-mask])
-        (rotate :z (* i (/ (* 2 pi) 3)))
-        (translate :x 18.0)
+    (for [i (range 1 2)]
+      (branch
+       :from :fan-hole-body
+       :with [:fan-hole-body :fan-hole-mask]
+       (set :cross-section (m/square 7 22 true)
+            :to [:fan-hole-body])
+       (set :cross-section (m/square 5 20 true)
+            :to [:fan-hole-mask])
+       (rotate :z (* i (/ (* 2 pi) 3)))
+       (translate :x 18.0)
+       (loft
         (forward :length 1/2)
         (translate :x 8 :z 4)
-        (forward :length 1/2)
-        (hull)
+        (forward :length 1/2))
+       (loft
         (forward :length 1/2)
         (translate :x -1.6 :z 8)
         (when (zero? i)
           (translate :y 6))
-
-        (set :cross-section (m/square (- 15.2 (* 2 1.3) 2.2) (- 19.2 (* 2 1.3) 2.2)) :to [:fan-hole-mask])
-        (set :cross-section (m/square (- 15.2 2.5) (- 19.2 2.5)) :to [:fan-hole-body])
-        (forward :length 0.1)
-        (hull)
-        (if (zero? i)
-          (forward :length 12.2)
-          (forward :length 1.5))
-        (when (zero? i)
-          (up :angle pi|4 :curve-radius 22/2))
-        (forward :length 0.01 :to [:fan-hole-mask])
-        (forward :length 6)))))
+        (set :cross-section (m/square (- 15.2 (* 2 1.3) 2.2) (- 19.2 (* 2 1.3) 2.2) true) :to [:fan-hole-mask])
+        (set :cross-section (m/square (- 15.2 2.5) (- 19.2 2.5) true) :to [:fan-hole-body])
+        (forward :length 0.1))
+       (if (zero? i)
+         (forward :length 12.2)
+         (forward :length 1.5))
+       (when (zero? i)
+         (up :angle pi|4 :curve-radius 22/2))
+       (forward :length 0.01 :to [:fan-hole-mask])
+       (forward :length 6))))
 
    (branch
     :from :origin
     (rotate :z (- pi|6))
     (frame :cross-section (make-opening-shape 0)
-          :name :center-triangle-body)
+           :name :center-triangle-body)
     (frame :cross-section (m/circle 4)
-          :name :tmp-mask)
+           :name :tmp-mask)
     (translate :y -18.3 :to [:center-triangle-body])
     (forward :length (+ 26 fan-h))
     (save-transform :frame :center-triangle-body :name :extruder-assembly-top))))
@@ -1374,7 +1377,7 @@
    (frame :cross-section coupling-shape :name :coupling-mask)
    (to
     :models [:coupling-mask]
-    (transform :transform (lookup-transform extruder-mask ::coupling-junction))
+    (transform :replace (lookup-transform extruder-mask ::coupling-junction))
     (rotate :y (- pi|6))
     (forward :length 50))))
 
@@ -1383,14 +1386,13 @@
    (result :name :extruder-assembly
            :expr (difference :extruder-assembly-body-fisheye
                              :coupling-mask-segment))
-   (segment extruder-assembly-body-fisheye)
-   (segment coupling-mask-segment)))
+   (:forms extruder-assembly-body-fisheye)
+   (:forms coupling-mask-segment)))
 
 (def extruder-coupling
   (extrude
-   (mask :name :mask :fn 100)
    (result :name :extruder-coupling
            :expr (difference (intersection :center-triangle-body :coupling-mask-segment)
                              :extruder-mask))
-   (segment extruder-assembly-body-fisheye)
-   (segment coupling-mask-segment)))
+   (:forms extruder-assembly-body-fisheye)
+   (:forms coupling-mask-segment)))
