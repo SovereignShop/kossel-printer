@@ -15,7 +15,7 @@
     :refer [forward hull left right up down translate spin
             set segment transform branch offset insert
             rotate frame save-transform add-ns extrude to points loft
-            result difference union show-coordinate-frame export-models
+            result difference union show-coordinate-frame export-models export
             intersection mirror lookup-transform add-ns get-model get-model]]))
 
 (def rod-mount-offset 21)
@@ -338,27 +338,26 @@
 
    (save-transform :frame :board-mount-body :name ::start-frame)
 
-   (segment
-    (let [[left-pts right-pts]
-          (for [i (range 2)]
-            (points
-             :axes [:x :y]
-             (frame :name :bottom-wall :curve-radius 3/2)
-             (rotate :x (+ (* i pi) pi|2))
-             (forward :length 10)
-             (right :angle pi|4)
-             (left :angle pi|4)
-             (forward :length 45)
-             (right :angle pi|2)
-             (forward :length 30)))
-          all-pts (concat (rseq left-pts) right-pts)]
-      (branch
-       :from :board-mount-body
-       :with []
-       (frame :name :bottom-wall
-              :cross-section (m/cross-section (offset-polygon all-pts -1.0)))
-       (translate :z (- 140/2))
-       (forward :length 3))))
+   (let [[left-pts right-pts]
+         (for [i (range 2)]
+           (points
+            :axes [:x :y]
+            (frame :name :bottom-wall :curve-radius 3/2)
+            (rotate :x (+ (* i pi) pi|2))
+            (forward :length 10)
+            (right :angle pi|4)
+            (left :angle pi|4)
+            (forward :length 45)
+            (right :angle pi|2)
+            (forward :length 30)))
+         all-pts (concat (rseq left-pts) right-pts)]
+     (branch
+      :from :board-mount-body
+      :with []
+      (frame :name :bottom-wall
+             :cross-section (m/cross-section (offset-polygon all-pts -1.0)))
+      (translate :z (- 140/2))
+      (forward :length 3)))
 
    (branch
     :from :board-mount-body
@@ -882,8 +881,7 @@
           :name :build-plate-support-body)
 
    (branch
-    :from :build-plate-support-body
-    :with []
+    :from :build-plate-support-body :with []
     (:forms build-plate-mask))
 
    (transform :replace (lookup-transform printer-model :k0.e0.r1/side-rod))
@@ -913,6 +911,30 @@
        (offset :delta 2)
        (forward :length 5)
        #_(show-coordinate-frame))))))
+
+(def ^:export-model adjustable-build-plate-support
+  (extrude
+   (result :name :adjustable-build-plate-support
+           :expr (difference :build-plate-support-body
+                             :bolt-mask
+                             (-> (m/cylinder 30 3/2 3/2 20)
+                                 (m/rotate [T|2 0 0])
+                                 (m/translate [0 12 10]))))
+
+   (frame :name :build-plate-support-body
+          :cross-section (m/square 40 20 true))
+   (frame :name :bolt-mask
+          :cross-section (m/union (-> (m/circle 3/2 20)
+                                      (m/translate [12 0]))
+                                  (-> (m/circle 3/2 20)
+                                      (m/translate [-12 0]))))
+
+   (hull
+    :to [:build-plate-support-body]
+    (forward :length 3)
+    (offset :delta 3 :to [:bolt-mask])
+    (set :cross-section (m/square 20 20 true) :to [:build-plate-support-body])
+    (forward :length 17))))
 
 (def ^:export-model carriage-heat-shield-mount
   (extrude
@@ -980,7 +1002,6 @@
        (translate :x 15)
        (rotate :x pi)
        (forward :length 1))))))
-
 
 (def fan-w 40)
 (def fan-l 10)
@@ -1088,15 +1109,14 @@
     (translate :z (- (+ 20 heatbreak-body-radius)))
 
     ;; Mount bolt holes
-    (segment
-     (for [rot [(+ pi|4 pi) (+ pi|4 pi|2 pi) (+ pi|4 pi pi) (+ pi|4 pi pi pi|2)]]
-       (branch
-        :from :extruder-fan-mask
-        :with []
-        (frame :cross-section (m/circle 3/2) :name :fan-bolt-holes)
-        (rotate :z rot)
-        (translate :x (+ 2 2.1 fan-radius))
-        (forward :length 25))))
+    (for [rot [(+ pi|4 pi) (+ pi|4 pi|2 pi) (+ pi|4 pi pi) (+ pi|4 pi pi pi|2)]]
+      (branch
+       :from :extruder-fan-mask
+       :with []
+       (frame :cross-section (m/circle 3/2) :name :fan-bolt-holes)
+       (rotate :z rot)
+       (translate :x (+ 2 2.1 fan-radius))
+       (forward :length 25)))
 
     (hull
      (hull
@@ -1147,20 +1167,19 @@
      (frame :name :coupling-bolt-mask)
      (translate :z (- 5))
      (rotate :x pi|2)
-     (segment
-      (for [rot [0 pi]]
-        (branch
-         :from :coupling-bolt-mask
-         (set :cross-section (m/union
-                              (m/translate (m/circle (+ 1/4 3/2)) [11 0])
-                              (m/translate (m/circle (+ 1/4 3/2)) [-11 0]))
-              :fn 6)
-         (rotate :y rot)
-         (forward :length 4)
-         (set :cross-section (m/union
-                              (m/translate (m/circle 6/2 6) [11 0])
-                              (m/translate (m/circle 6/2 6) [-11 0])))
-         (forward :length 60)))))
+     (for [rot [0 pi]]
+       (branch
+        :from :coupling-bolt-mask
+        (set :cross-section (m/union
+                             (m/translate (m/circle (+ 1/4 3/2)) [11 0])
+                             (m/translate (m/circle (+ 1/4 3/2)) [-11 0]))
+             :fn 6)
+        (rotate :y rot)
+        (forward :length 4)
+        (set :cross-section (m/union
+                             (m/translate (m/circle 6/2 6) [11 0])
+                             (m/translate (m/circle 6/2 6) [-11 0])))
+        (forward :length 60))))
 
     (forward :length 2))))
 
@@ -1375,16 +1394,18 @@
    (result :name :extruder-assembly
            :expr (difference :extruder-assembly-body-fisheye
                              :coupling-mask-segment))
-   (:forms extruder-assembly-body-fisheye)
-   (:forms coupling-mask-segment)))
+   (insert :extrusion extruder-assembly-body-fisheye)
+   (insert :extrusion coupling-mask-segment)))
 
 (def ^:export-model extruder-coupling
   (extrude
    (result :name :extruder-coupling
-           :expr (difference (intersection :center-triangle-body :coupling-mask-segment)
+           :expr (difference (intersection :center-triangle-body
+                                           :coupling-mask-segment)
                              :extruder-mask))
-   (:forms extruder-assembly-body-fisheye)
-   (:forms coupling-mask-segment)))
+   (insert :extrusion extruder-assembly-body-fisheye
+           :models [:center-triangle-body :extruder-mask])
+   (insert :extrusion coupling-mask-segment)))
 
 (def ^:export-model full-printer-model
   (m/union (get-model printer-model :printer-model)
@@ -1494,9 +1515,6 @@
 
 (def center-frame-support
   (make-frame-support :center-frame-support :center))
-
-
-(def magnetic-frame-suppor)
 
 (comment
 
