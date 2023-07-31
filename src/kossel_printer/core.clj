@@ -43,12 +43,10 @@
   (extrude
    (result :name :printer-model :expr :body)
    (frame :cross-section (m/square 20.4 20.4 true) :name :body)
-   (for [x (range 6)]
+   (for [x (range 1)]
      (branch
       :from :body
       (add-ns :namespace (keyword (str "k" x)))
-      (rotate :z (* x pi|3))
-      (translate :x -400)
       (branch
        :from :body
        :with []
@@ -102,15 +100,38 @@
            (save-transform :frame :body :name :frame-support-mount))
           (branch
            :from :body :with []
-           (frame :cross-section (-> (m/square 44 68 true)
-                                     (m/offset (- 5) :square)
-                                     (m/offset 5 :round)
-                                     (m/simplify 0.1))
+           (frame :cross-section (-> #_(m/square 50 68 true)
+                                     (let [cr 1.5]
+                                       (m/cross-section
+                                        (points
+                                         :axes [:x :z]
+                                         (frame :name :origin :curve-radius cr)
+                                         (rotate :y (- pi|2))
+                                         (forward :length 10)
+                                         (right :angle pi|2)
+                                         (left :angle pi|2)
+                                         (forward :length (- 68/2 (* 3 cr) 10))
+                                         (left :angle pi|2)
+                                         (forward :length (- 54 (* 2 cr)))
+                                         (left :angle pi|2)
+                                         (forward :length (- 68 (* 2 cr)))
+                                         (left :angle pi|2)
+                                         (forward :length (- 54 (* 2 cr)))
+                                         (left :angle pi|2)
+                                         (forward :length (- 68/2 (* 3 cr) 10))
+                                         (left :angle pi|2)
+                                         (right :angle pi|2)
+                                         (forward :length 10))))
+                                     (m/rotate (- T|2))
+                                     (m/translate [10.2 0])
+                                     #_(m/offset (- 5) :square)
+                                     #_(m/offset 5 :round)
+                                     #_(m/simplify 0.1))
                   :name :carriage-mask)
 
-           (translate :x -11.8)
+           #_(translate :x 0)
            (translate :z 66)
-           (forward :length (- printer-height 62.5)))
+           (forward :length (- printer-height 66 25)))
           (forward :length printer-height))
 
          (branch
@@ -169,6 +190,13 @@
             (rotate :x (/ Math/PI 2))
             (forward :length 400 :center true)))))))))
 
+#_(def ^:export-model radial-print-farm
+    (for [i (range 6)]
+      (branch
+       :from :body
+       (rotate :z (* x pi|3))
+       (translate :x -400))))
+
 (def build-plate-mask
   (extrude
    (frame :name :build-plate-mask
@@ -208,7 +236,7 @@
        (set :cross-section  (m/hull (-> (m/circle 5 40)
                                         (m/translate [-6 0]))
                                     (-> (m/circle 5 40)
-                                        (m/translate [6 0]))))
+                                        (m/translate [6 0]))) )
        #_(show-coordinate-frame)
        (forward :length 50))
 
@@ -507,6 +535,18 @@
         (fn [i h inner-support?]
           [(translate :x (+ 10.2 3) :z h)
            (rotate :x (+ (* i pi) pi|2))
+           (when-not inner-support?
+             (branch
+              :from :tower-support-top-body
+              (translate :x 3)
+              (forward :length 29)))
+           #_(loft
+              (forward :length 0.033)
+              (translate :x 3 :z 2.5)
+              (forward :length 0.033)
+              (forward :length (- 23 5 10))
+              (translate :x -3 :z 2.5)
+              (forward :length 0.033))
            (forward :length 23.1)
            (when inner-support?
              (branch
@@ -530,7 +570,7 @@
             :name :tower-support-top-body
             :curve-radius 3)
 
-     (transform :replace (lookup-transform printer-model :k0.e0/vertical-rod))
+     #_(transform :replace (lookup-transform printer-model :k0.e0/vertical-rod))
 
      (branch
       :from :tower-support-top-body
@@ -566,7 +606,7 @@
          (translate :z 10)
          (forward :length 4)
          (set :cross-section (m/circle 7))
-         (forward :length 5))))
+         (forward :length 10))))
 
      (branch
       :from :tower-support-top-body
@@ -615,7 +655,18 @@
 
 (def ^:export-model tower-support-top
   (m/difference
-   (get-model tower-support-top-impl :tower-support-top)
+   (m/transform (get-model tower-support-top-impl :tower-support-top)
+                (lookup-transform printer-model :k0.e0/vertical-rod))
+   (get-model printer-model :body)
+   (get-model printer-model :carriage-mask)))
+
+(def all-tower-top-supports
+  (m/difference
+   (m/union
+    (for [k [:k0.e0/vertical-rod :k0.e1/vertical-rod :k0.e2/vertical-rod]]
+      (m/transform (get-model tower-support-top-impl :tower-support-top)
+                   (lookup-transform printer-model k))))
+
    (get-model printer-model :body)))
 
 (def tower-support-top-bolt-housing
@@ -681,7 +732,7 @@
         a (/ (* 2.0 pi) n-pts)]
     (m/square 100 2.15 true)))
 
-(def carriage-mount
+(def ^:export-model carriage-mount
   (extrude
    (result :name :carriage-mount
            :expr (union
@@ -736,28 +787,30 @@
                                       (m/translate [0 (- (- (/ 13.5 2) 0.7))])
                                       (m/rotate T))) )
 
-   (set :cross-section (m/union (m/square 45 25 true)
-                                (m/hull (-> (m/square 45 3 true)
-                                            (m/translate [0 2.75]))
+   (set :cross-section (m/union
+                        (m/square 45 25 true)
+                        (let [x (m/hull (-> (m/square 45 3 true)
+                                            (m/translate [0 2.9]))
                                         (-> (m/square 3 0.2 true)
-                                            (m/translate [(+ 45/2 3) 2.75])))
-                                (m/translate (m/hull (m/square 45 5.8 true)
-                                                     (-> (m/square 3 0.2 true)
-                                                         (m/translate [(+ 45/2 3) 0])))
-                                             [0 -9.65])
-                                (m/translate (m/hull (m/square 45 5.8 true)
-                                                     (-> (m/square 3 0.2 true)
-                                                         (m/translate [(- (+ 45/2 3)) 0])))
-                                             [0 -9.65])
+                                            (m/translate [(+ 45/2 3) 2.9])))]
+                          (m/union x (m/mirror x [-1 0 0])))
+                        (m/translate (m/hull (m/square 45 5.8 true)
+                                             (-> (m/square 3 0.2 true)
+                                                 (m/translate [(+ 45/2 3) 0])))
+                                     [0 -9.65])
+                        (m/translate (m/hull (m/square 45 5.8 true)
+                                             (-> (m/square 3 0.2 true)
+                                                 (m/translate [(- (+ 45/2 3)) 0])))
+                                     [0 -9.65])
 
-                                (m/hull (-> (m/square 45 5 true)
-                                            (m/translate [0 -2]))
-                                        (-> (m/square 3 0.2 true)
-                                            (m/translate [(+ 45/2 3) -2])))
-                                (m/hull (-> (m/square 45 5 true)
-                                            (m/translate [0 -2]))
-                                        (-> (m/square 3 0.2 true)
-                                            (m/translate [(- (+ 45/2 3)) -2]))))
+                        (m/hull (-> (m/square 45 5 true)
+                                    (m/translate [0 -2.5]))
+                                (-> (m/square 3 0.2 true)
+                                    (m/translate [(+ 45/2 3) -3])))
+                        (m/hull (-> (m/square 45 5 true)
+                                    (m/translate [0 -2.5]))
+                                (-> (m/square 3 0.2 true)
+                                    (m/translate [(- (+ 45/2 3)) -2]))))
         :to [:carriage-mount-body])
    (forward :length 6)
    (forward :length 8 :to [:belt-mask])))
@@ -772,48 +825,53 @@
   (extrude
    (result :name :tower-support-bolt-holes :expr :side-rod-bolt-point)
    (frame :name :side-rod-bolt-point :cross-section (m/square 7 11 true))
-   (for [tf-name [:k0.e0.r0/side-rod :k0.e0.r1/side-rod]]
+   (for [tf-name [:k0.e0.r0/side-rod :k0.e0.r1/side-rod
+                  :k0.e1.r0/side-rod :k0.e1.r1/side-rod
+                  :k0.e2.r0/side-rod :k0.e2.r1/side-rod]]
      (branch
       :from :side-rod-bolt-point
       (transform :replace (lookup-transform printer-model tf-name))
       (translate :z 10)
-      (translate :y (/ 360 2))
-      (rotate :y pi|2)
-      (for [x [0 -25]]
+      (for [sign [+ -]]
         (branch
          :from :side-rod-bolt-point
-         (translate :y x)
-         (forward :length 13)
-         (set :cross-section (m/circle 14/2))
-         (forward :length 50)))))))
+         (translate :y (sign 360/2))
+         (rotate :y pi|2)
+         (for [x [0 (- (sign 25))]]
+           (branch
+            :from :side-rod-bolt-point
+            (translate :y x)
+            (forward :length 13)
+            (set :cross-section (m/circle 14/2))
+            (forward :length 50)))))))))
 
 (def tower-support
   (extrude
    (result :name :tower-support
            :expr
            (difference
-              :tower-support-body
-              :tower-support-mask
-              :stepper-bolt-mask
-              :stepper-shaft-hole
-              :tower-support-bolt-holes
-              :vertical-rod-bolt-holes))
+            :tower-support-body
+            :tower-support-mask
+            :stepper-bolt-mask
+            :stepper-shaft-hole
+            :tower-support-bolt-holes
+            :vertical-rod-bolt-holes))
 
    (frame :cross-section (m/square 10 10 true) :name :tower-support-body)
    (branch :from :tower-support-body :with [] (:forms tower-support-bolt-holes))
-   (transform :replace (lookup-transform printer-model :k0.e1/vertical-rod))
+   #_(transform :replace (lookup-transform printer-model :k0.e1/vertical-rod))
    (branch
-      :from :tower-support-body :with []
-      (frame :name :vertical-rod-bolt-holes :cross-section (m/square 11 7 true))
-      (segment
-       (for [z [8 30 165 185]]
-         (branch
-          :from :vertical-rod-bolt-holes
-          (translate :x 10 :z z)
-          (rotate :y (+ pi|2))
-          (forward :length 4)
-          (set :cross-section (m/circle 13/2))
-          (forward :length 20)))))
+    :from :tower-support-body :with []
+    (frame :name :vertical-rod-bolt-holes :cross-section (m/square 11 7 true))
+    (segment
+     (for [z [8 30 165 185]]
+       (branch
+        :from :vertical-rod-bolt-holes
+        (translate :x 10 :z z)
+        (rotate :y (+ pi|2))
+        (forward :length 4)
+        (set :cross-section (m/circle 13/2))
+        (forward :length 20)))))
 
    (branch
     :from :tower-support-body :with []
@@ -832,7 +890,7 @@
              :cross-section (m/union (for [x [15 -15]
                                            y [15 -15]]
                                        (-> (m/circle 1.6)
-                                           (m/translate [x y])))))
+                                           (m/translate [x y])))) )
       (frame :name :stepper-shaft-hole
              :cross-section (m/circle 11.2))
       (rotate :y pi)
@@ -843,27 +901,44 @@
      (forward :length 200)))
 
    (branch
-      :from :tower-support-body :with []
-      (frame :name :tower-support-mask :cross-section (m/square belt-shaft-width belt-shaft-width true))
-      (translate :x (- (+ 10 belt-shaft-mask-offset)))
-      (forward :length 200))
+    :from :tower-support-body :with []
+    (frame :name :tower-support-mask :cross-section (m/square belt-shaft-width belt-shaft-width true))
+    (translate :x (- (+ 10 belt-shaft-mask-offset)))
+    (forward :length 200))
 
    (hull
     (for [sign [-1 1]
           [height length] [[5 62.5]
                            [60 62.5]
                            [190 10]]]
-      [(transform :replace (lookup-transform printer-model :k0.e1/vertical-rod))
-        (translate :z height :x 85)
-        (rotate :z (* sign pi|6))
-        (rotate :y (- pi|2))
-        (translate :z 80)
-        (forward :length length)
-        (rotate :x (* sign (- (+ pi|6 pi|3))))
+      [(transform :replace (m/frame 1) #_(lookup-transform printer-model :k0.e1/vertical-rod))
+       (translate :z height :x 85)
+       (rotate :z (* sign pi|6))
+       (rotate :y (- pi|2))
+       (translate :z 80)
+       (forward :length length)
+       (rotate :x (* sign (- (+ pi|6 pi|3))))
        (forward :length 10)]))))
 
 (def ^:export-model base-tower-support
-  (m/difference (get-model tower-support :tower-support)
+  (m/difference (m/transform (get-model tower-support :tower-support)
+                             (-> (lookup-transform printer-model :k0.e1/vertical-rod)
+                                 (m/translate [0 0 0])))
+                (get-model tower-support :tower-support-bolt-holes)
+                (get-model printer-model :carriage-mask)
+                (get-model printer-model :side-rod-mask)
+                (get-model printer-model :body)
+                (get-model printer-model :heated-bed-mask) ))
+
+(m/union (get-model printer-model :body)
+         (get-model printer-model :carriage-mask))
+
+(def all-base-tower-supports
+  (m/difference (m/union
+                 (for [k [:k0.e0/vertical-rod :k0.e1/vertical-rod :k0.e2/vertical-rod]]
+                   (m/transform
+                    (get-model tower-support :tower-support)
+                    (lookup-transform printer-model k))))
                 (get-model printer-model :carriage-mask)
                 (get-model printer-model :side-rod-mask)
                 (get-model printer-model :body)
@@ -924,9 +999,9 @@
    (frame :name :build-plate-support-body
           :cross-section (m/square 40 20 true))
    (frame :name :bolt-mask
-          :cross-section (m/union (-> (m/circle 3/2 20)
+          :cross-section (m/union (-> (m/circle 3/2 40)
                                       (m/translate [12 0]))
-                                  (-> (m/circle 3/2 20)
+                                  (-> (m/circle 3/2 40)
                                       (m/translate [-12 0]))))
 
    (hull
@@ -935,6 +1010,57 @@
     (offset :delta 3 :to [:bolt-mask])
     (set :cross-section (m/square 20 20 true) :to [:build-plate-support-body])
     (forward :length 17))))
+(let [slider-shape (m/hull
+                    (-> (m/circle 2 20)
+                        (m/translate [-11 0]))
+                    (-> (m/circle 2)
+                        (m/translate [11 0])))
+      w 40 l 14 h 20]
+  (def ^:export-model adjustable-build-plate-side-support
+    (m/difference
+     (-> (m/square w l true)
+         (m/extrude h))
+     (-> (m/square (- w 3.2) (- l 3.2) true)
+         (m/extrude (- h 2)))
+     (-> slider-shape
+         (m/extrude (+ 2 h)))
+     (-> (m/circle 3/2)
+         (m/extrude 50)
+         (m/rotate [0 T|2 0])
+         (m/translate [0 0 10]))
+     (-> (m/circle 5/2)
+         (m/extrude 50)
+         (m/rotate [0 (- T|2) 0])
+         (m/translate [0 0 10]))))
+
+  (def ^:export-model adjustable-build-plate-side-support-slider
+    (extrude
+     (result :name :adjustable-build-plate-side-support-slider
+             :expr (difference :body :mask))
+     (frame :name :body :cross-section (m/square 18 14 true))
+     (frame :name :mask :cross-section (m/circle 3))
+     (forward :length 3)
+     (set :cross-section (m/circle 3/2) :to [:mask])
+     (forward :length 1.2))))
+
+(def ^:export-model build-plate-support-3
+  (extrude
+   (result :name :support
+           :expr (difference :body :mask))
+   (frame :name :body
+          :cross-section (m/square 40 20 true))
+   (frame :name :mask
+          :cross-section (m/hull (for [sign [+ -]]
+                                   (-> (m/circle (+ 0.1 3/2))
+                                       (m/translate [(sign 12) 0])))))
+   (forward :length 1.6)))
+
+(m/union adjustable-build-plate-side-support
+         (-> adjustable-build-plate-side-support-slider
+             (m/translate [0 0 19])))
+
+(def ^:export-model
+  (m/square 20 10 true) )
 
 (def ^:export-model carriage-heat-shield-mount
   (extrude
@@ -1202,7 +1328,7 @@
        (translate :z -10)
        (forward :length (- 20 1.6))
        (set :cross-section (m/circle 1.6))
-       (forward :length 1.6))))))
+)))))
 
 (def bltouch-mask-shape
   (m/hull (m/circle 7 6)
@@ -1409,8 +1535,8 @@
 
 (def ^:export-model full-printer-model
   (m/union (get-model printer-model :printer-model)
-           base-tower-support
-           tower-support-top))
+           all-base-tower-supports
+           all-tower-top-supports))
 
 (def bolt-segment
   (extrude
@@ -1501,8 +1627,16 @@
   (make-frame-support :left-frame-support :left))
 
 (def radial-print-farm
-  (m/union (get-model printer-model :body)
-           (get-model left-frame-support :left-frame-support)
+  (m/union (m/union (for [i (range 6)]
+                      (-> full-printer-model
+                          (m/rotate [0 0 (* i T|3)]))))
+           (let [support (get-model left-frame-support :left-frame-support)]
+             (m/union
+              (for [i (range 6)
+                    z [20 600]]
+                (-> support
+                    (m/rotate [0 0 (* i T|3)])
+                    (m/translate [0 0 z])))))
            (-> (m/union
                 (for [i [-1 1]]
                   (-> (m/square panel-width panel-height true)
@@ -1516,11 +1650,12 @@
 (def center-frame-support
   (make-frame-support :center-frame-support :center))
 
+(def build-plate-support)
+
 (comment
 
   (export-models *ns* "glb")
 
   (export-models *ns* "f3z")
   (export-models *ns* "stl")
-
   )
