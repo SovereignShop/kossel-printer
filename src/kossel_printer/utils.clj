@@ -6,6 +6,15 @@
    [plexus.transforms :as tf]
    [clj-manifold3d.core :as m]))
 
+(defn in->mm [inches]
+  (* inches 25.4))
+
+(defn ft->mm [ft]
+  (* ft 12 25.4))
+
+(defn mm->in [mm]
+  (/ mm 25.4))
+
 (defn circle-pts [r res]
   (let [pts (for [i (range res)]
               (-> tf/identity-tf

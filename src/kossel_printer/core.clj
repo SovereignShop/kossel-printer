@@ -26,6 +26,8 @@
 (def build-plate-radius 310/2)
 (def carriage-spacer-length 2.5)
 (def outer-mount-length (- rod-mount-margin carriage-spacer-length))
+(def heated-bed-mask-radius (+ 60 heated-bed-radius))
+(def heated-bed-mask-radius-inches (u/mm->in heated-bed-mask-radius))
 
 (def printer-offset 400)
 
@@ -67,7 +69,7 @@
        (save-transform :frame :body :name :bed)
        (branch
         :from :body :with []
-        (frame :cross-section (m/circle (+ 60 heated-bed-radius) 300)
+        (frame :cross-section (m/circle heated-bed-mask-radius 300)
                :name :heated-bed-mask)
         (forward :length 200))
        (translate :x build-plate-radius)
@@ -558,10 +560,11 @@
            (forward :length 24.58)
            (left :angle pi|2 :curve-radius 3)])]
     (extrude
+
      (result :name :tower-support-top
-               :expr (union :bolt-housing
-                            (difference :tower-support-top-body :bolt-mask :vertical-bolt-holes
-                                        :horizontal-bolt-holes)))
+             :expr (union :bolt-housing
+                          (difference :tower-support-top-body :bolt-mask :vertical-bolt-holes
+                                      :horizontal-bolt-holes)))
 
      (result :name :bolt-housing
              :expr (difference :bolt-mask-body :bolt-mask :tower-support-top-body))
@@ -743,7 +746,7 @@
           :name :carriage-mount-body)
 
    (branch
-    :from :carriage-mount-body
+    :from w :carriage-mount-body
     :with []
     (frame :name :origin)
     (translate :z 13)
@@ -1010,6 +1013,7 @@
     (offset :delta 3 :to [:bolt-mask])
     (set :cross-section (m/square 20 20 true) :to [:build-plate-support-body])
     (forward :length 17))))
+
 (let [slider-shape (m/hull
                     (-> (m/circle 2 20)
                         (m/translate [-11 0]))
@@ -1092,42 +1096,59 @@
     (rotate :x pi)
     (forward :length 10))))
 
-(def ^:export-model middle-heat-shield-mount
+(def ^:export-model endstop-mount
   (extrude
-   (result :name :middle-heat-shield-mount
-           :expr (difference :mount-body :mount-mask))
-
-   (frame :name :mount-body
-          :cross-section (m/square 4 20 true))
-
-   (transform :replace (lookup-transform printer-model :k0.e0/vertical-rod))
-   (translate :z 400 :x 12.2)
+   (result :name :endstop-mount
+           :expr (difference (hull :body (->> :heat-shield-mount/carriage-heat-shield-mount
+                                              (translate {:x 28/2 :y 3.5})))
+                             :endstop-bolt-mask
+                             (-> (m/cylinder 100 3/2)
+                                 (m/translate [28/2 6 22]))
+                             (-> (m/cube 18 20 8 true)
+                                 (m/translate [0 0 40]))
+                             (-> (m/cube 20 20 100 true)
+                                 (m/rotate [90 0 0])
+                                 (m/translate [28/2 0 10]))
+                             :side-bolt-mask))
+   (frame :name :body
+          :cross-section (m/square 8 19 true))
 
    (branch
-    :from :mount-body
+    :from :body
     :with []
-    (frame :name :mount-mask
-           :cross-section (m/circle 8))
-    (translate :x 2)
+    (frame :name :side-bolt-mask
+           :cross-section (m/circle 3/2))
+    (translate :z 10 :y 2 :x 4)
     (rotate :y (- pi|2))
-    (forward :length 2)
-    (set :cross-section (m/circle 2))
-    (forward :length 5))
+    (forward :length 1.6)
+    (set :cross-section (m/circle 3))
+    (forward :length 30))
 
-   (for [i (range 2)]
-     (branch
-      :from :mount-body
-      (rotate :x (+ pi|2 (* i pi)))
-      (forward :length 10)
-      (right :angle pi|4 :curve-radius 2)
-      (left :angle pi|4 :curve-radius 2)
-      (forward :length 21)
-      (hull
-       (left :angle pi|2 :curve-radius 10)
-       (forward :length (+ 20 22))
-       (translate :x 15)
-       (rotate :x pi)
-       (forward :length 1))))))
+   (frame :name :endstop-bolt-mask
+          :cross-section (m/union
+                          (-> (m/circle 3/2)
+                              (m/translate [28/2 0]))
+                          (-> (m/circle 3/2)
+                              (m/translate [-28/2 0]))))
+   (translate :y -3.5 :to [:endstop-bolt-mask])
+   (forward :length 17)
+   (set :cross-section (m/square 37 19 true) :to [:body])
+   (translate :x 1/2 :to [:body])
+   (forward :length 3)
+
+   (insert :extrusion carriage-heat-shield-mount
+           :models [:mask :carriage-heat-shield-mount]
+           :ns :heat-shield-mount)
+
+   (forward :length 1)
+   (to
+    :models [:endstop-bolt-mask]
+    (set :cross-section (m/square 36 12 true))
+    (forward :length 40))))
+
+
+
+
 
 (def fan-w 40)
 (def fan-l 10)
@@ -1567,11 +1588,9 @@
    (set :cross-section (m/circle 5.5))
    (forward :length 70)))
 
-(defn make-frame-support [result-name left-right-center?]
-  (let [X (lookup-transform printer-model :k1.e1/frame-support-mount)
-        Xpos (subvec (tf/translation-vector X) 0 2)
+(defn make-frame-support [result-name left-right-center? X Y]
+  (let [Xpos (subvec (tf/translation-vector X) 0 2)
         Xdir (vec (take 2 (.getColumn X 2)))
-        Y (lookup-transform printer-model :k0.e2/frame-support-mount)
         Ypos (subvec (tf/translation-vector Y) 0 2)
         Ydir (vec (take 2 (.getColumn Y 2)))
 
@@ -1623,10 +1642,35 @@
                    :models [:bolt-mask]
                    :end-frame :bolt-mask-body))))))))
 
+(def printer-center-offset -440)
+
+(def printer-1-tf
+  (-> (m/frame 1) (m/rotate [0 0 pi|3]) (m/translate [printer-center-offset 0 0])))
+
+(def printer-2-tf
+  (-> (m/frame 1) (m/translate [printer-center-offset 0 0])))
+
+(def printer-3-tf
+  (-> (m/frame 1) (m/rotate [0 0 (- pi|3)]) (m/translate [printer-center-offset 0 0])))
+
 (def left-frame-support
-  (make-frame-support :left-frame-support :left))
+  (make-frame-support :left-frame-support :left
+                      (m/compose-frames
+                       printer-1-tf
+                       (lookup-transform printer-model :k0.e1/frame-support-mount))
+                      (m/compose-frames
+                       printer-2-tf
+                       (lookup-transform printer-model :k0.e2/frame-support-mount))))
 
 (def radial-print-farm
+  (m/union (m/transform (get-model printer-model :body) printer-1-tf)
+           #_(m/transform (get-model printer-model :heated-bed-mask) printer-1-tf)
+           (m/transform (get-model printer-model :body) printer-2-tf)
+           #_(m/transform (get-model printer-model :heated-bed-mask) printer-2-tf)
+           (m/transform (get-model printer-model :body) printer-3-tf)
+           (get-model left-frame-support :left-frame-support)))
+
+#_(def radial-print-farm
   (m/union (m/union (for [i (range 6)]
                       (-> full-printer-model
                           (m/rotate [0 0 (* i T|3)]))))
@@ -1644,10 +1688,10 @@
                (m/extrude panel-thickness)
                (m/translate [0 0 printer-height]))))
 
-(def right-frame-support
+#_(def right-frame-support
   (make-frame-support :right-frame-support :right))
 
-(def center-frame-support
+#_(def center-frame-support
   (make-frame-support :center-frame-support :center))
 
 (def build-plate-support)
@@ -1657,5 +1701,4 @@
   (export-models *ns* "glb")
 
   (export-models *ns* "f3z")
-  (export-models *ns* "stl")
-  )
+  (export-models *ns* "stl"))
