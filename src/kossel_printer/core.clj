@@ -1593,6 +1593,7 @@
         Xdir (vec (take 2 (.getColumn X 2)))
         Ypos (subvec (tf/translation-vector Y) 0 2)
         Ydir (vec (take 2 (.getColumn Y 2)))
+        curve-radius 20
 
         Zdir (e/- Ypos Xpos)
 
@@ -1612,7 +1613,10 @@
 
         D (- pi A)
         x (* c (sin (/ A 2)))
-        y (/ x (sin (/ D 2)))]
+        y (/ x (sin (/ D 2)))
+
+        cr 20
+        forward-length (- (magnitude Zdir) (* 2 cr (sin (/ D 2))))]
     (extrude
      (result :name result-name
              :expr (union #_:bolt-segment (difference :frame-support-body :bolt-mask)))
@@ -1632,8 +1636,10 @@
         (for [op (case left-right-center? :left [up] :right [down] :center [down up])]
           (branch
            :from :frame-support-body
-           (op :angle D :curve-radius y :cs 200)
-           (let [l (- (* (magnitude Xdir) y-scalar) c)]
+           (op :angle (/ D 2) :curve-radius cr :cs 200)
+           (forward :length forward-length)
+           (op :angle (/ D 2) :curve-radius cr :cs 200)
+           #_(let [l (- (* (magnitude Xdir) y-scalar) c)]
              (when (> l 1)
                (forward :length l)))
            (rotate :x (- pi))
@@ -1653,7 +1659,7 @@
 (def printer-3-tf
   (-> (m/frame 1) (m/rotate [0 0 (- pi|3)]) (m/translate [printer-center-offset 0 0])))
 
-(def left-frame-support
+(def ^:export-model left-frame-support
   (make-frame-support :left-frame-support :left
                       (m/compose-frames
                        printer-1-tf
