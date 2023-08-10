@@ -24,6 +24,9 @@
                   (subvec 0 2)))]
     pts))
 
+(defn circumference [r]
+  (* 2 Math/PI r))
+
 (defn ovol
   ([rx ry]
    (ovol rx ry 100))

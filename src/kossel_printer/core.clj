@@ -29,6 +29,14 @@
 (def heated-bed-mask-radius (+ 60 heated-bed-radius))
 (def heated-bed-mask-radius-inches (u/mm->in heated-bed-mask-radius))
 
+(def heated-bed-shield-width
+  (/ (- (u/circumference (+ 1 heated-bed-mask-radius))
+        (* 3 46))
+     3))
+
+(def heated-bed-shield-width-inches
+  (u/mm->in heated-bed-shield-width))
+
 (def printer-offset 400)
 
 (def panel-width (u/in->mm 22))
@@ -413,14 +421,14 @@
       (forward :length 45)
       (right :angle pi|2)
       (forward :length 40)
-      (set :cross-section (m/square 4 140 true))
-      (translate :x -1/2)
+      (set :cross-section (m/square 6 140 true))
+      (translate :x -1.5)
       (save-transform :frame :board-mount-body :name ::mount-frame)
       (hull
        (forward :length 1)
-       (translate :z 4)
+       (translate :z 5)
        (set :cross-section (m/square 2 140 true))
-       (translate :x 1)
+       (translate :x 2)
        (forward :length 0.01))
       #_(show-coordinate-frame)))))
 
@@ -428,7 +436,7 @@
       y2 (.y (.getColumn (lookup-transform board-box ::mount-frame) 3))]
   (def box-lid-width (+ 4 (* 2 (- y2 y1)))))
 
-(def board-box-lid
+(def ^:export-model board-box-lid
   (extrude
    (result :name :board-box-lid
            :expr (union :board-box-lid-body :plate))
@@ -440,14 +448,15 @@
      (branch
       :from :board-box-lid-body
       (rotate :x (+ (* i pi) (- pi|2)))
-      (forward :length (/ box-lid-width 2))
+      (forward :length (+ 1.2 (/ box-lid-width 2)))
       (left :angle pi|2 :curve-radius 0.8)
-      (forward :length 5.5)
+      (forward :length 6.5)
       (translate :x -1/2)
-      (set :cross-section (m/square 2.6 140 true))
+      (set :cross-section (m/square (* 0.8 5) 140 true))
+      (translate :x -0.7)
       (loft
        (forward :length 1)
-       (translate :z 4 :x 0.5)
+       (translate :z 4 :x 1.0)
        (set :cross-section (m/square 1.6 140 true))
        (forward :length 0.01))))
 
@@ -474,6 +483,9 @@
     (translate :x -2)
     (rotate :x pi)
     (forward :length (+ 4 1.6)))))
+
+(m/union (get-model board-box-lid :board-box-lid)
+         (get-model board-box :board-mount))
 
 (def ^:export-model power-switch-box
   (extrude
@@ -746,7 +758,7 @@
           :name :carriage-mount-body)
 
    (branch
-    :from w :carriage-mount-body
+    :from :carriage-mount-body
     :with []
     (frame :name :origin)
     (translate :z 13)
@@ -1059,13 +1071,6 @@
                                        (m/translate [(sign 12) 0])))))
    (forward :length 1.6)))
 
-(m/union adjustable-build-plate-side-support
-         (-> adjustable-build-plate-side-support-slider
-             (m/translate [0 0 19])))
-
-(def ^:export-model
-  (m/square 20 10 true) )
-
 (def ^:export-model carriage-heat-shield-mount
   (extrude
    (result :name :carriage-heat-shield-mount
@@ -1145,10 +1150,6 @@
     :models [:endstop-bolt-mask]
     (set :cross-section (m/square 36 12 true))
     (forward :length 40))))
-
-
-
-
 
 (def fan-w 40)
 (def fan-l 10)
