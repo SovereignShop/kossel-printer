@@ -12,10 +12,10 @@
    [sicmutils.env :as e]
    [sicmutils.generic :refer [dot-product magnitude negate cross-product]]
    [plexus.core :as paths
-    :refer [forward hull left right up down translate spin
+    :refer [forward hull left right up down translate
             set segment transform branch offset insert
             rotate frame save-transform add-ns extrude to points loft
-            result difference union show-coordinate-frame export-models export
+            result difference union export-models export
             intersection mirror lookup-transform add-ns get-model get-model]]))
 
 (def rod-mount-offset 21)
@@ -199,6 +199,62 @@
             (translate :z 10)
             (rotate :x (/ Math/PI 2))
             (forward :length 400 :center true)))))))))
+
+(lookup-transform printer-model :k0.e0.r2/side-rod)
+
+(defn vec-sub [X Y]
+  (mapv - X Y))
+
+(def top-key-points
+  (let [pts
+        (for [i (range 2)
+              tf [(-> (lookup-transform printer-model :k0.e1.r3/side-rod)
+                      (m/translate [16 0 0]))
+                  (-> (lookup-transform printer-model :k0.e2.r3/side-rod)
+                      (m/translate [16 0 0]))]]
+          (let [[x y] (-> tf
+                          (m/translate [(if (odd? i) 120 0) (* i 415) 0])
+                          (m/rotate [0 0 (* i T)])
+                          (tf/translation-vector)
+                          (subvec 0 2))]
+            [(u/mm->in x) (u/mm->in y)]))
+        origin-pt (first pts)]
+    pts
+    #_(for [pt pts]
+        (vec-sub pt origin-pt))))
+
+(m/union
+ (for [pt top-key-points]
+   (-> (m/square 10 10 true)
+       (m/translate (mapv u/in->mm pt))
+       (m/extrude 90)
+       (m/translate [0 0 (u/in->mm 48)]))))
+
+(def linear-print-frarm
+  (m/union
+   (-> (m/square panel-width panel-height)
+       (m/extrude panel-thickness)
+       (m/translate [-200 -250 (u/in->mm 48)]))
+   (m/union
+    (for [pt top-key-points]
+      (-> (m/square 10 10 true)
+          (m/translate (mapv u/in->mm pt))
+          (m/extrude 90)
+          (m/translate [0 0 (u/in->mm 48)]))))
+
+
+   (m/union
+    (for [i (range 2)]
+      (-> (m/union (get-model printer-model :body)
+                   (get-model printer-model :heated-bed-mask)
+                   (-> (m/cube 10 10 90 true)
+                       (m/transform (-> (lookup-transform printer-model :k0.e1.r3/side-rod)
+                                        (m/translate [16 0 0]))))
+                   (-> (m/cube 10 10 90 true)
+                       (m/transform (-> (lookup-transform printer-model :k0.e2.r3/side-rod)
+                                        (m/translate [16 0 0])))))
+          (m/rotate [0 0 (* i T)])
+          (m/translate [(if (odd? i) 120 0) (* i 415) 0]))))))
 
 #_(def ^:export-model radial-print-farm
     (for [i (range 6)]
@@ -1589,6 +1645,32 @@
    (set :cross-section (m/circle 5.5))
    (forward :length 70)))
 
+(def side-panel-support
+  (extrude
+   (result :name :side-panel-support
+           :expr (difference :body :mask))
+
+   (frame :name :body :cross-section (m/square 80 20 true))
+   (frame :name :mask
+          :cross-section (m/union (-> (m/circle 3/2)
+                                      (m/translate [32 0]))
+                                  (-> (m/circle 3/2)
+                                      (m/translate [-32 0]))))
+   (forward :length 2)
+   (offset :delta 3 :to [:mask])
+   (forward :length 30)
+   (branch :from :mask :with [:mask] (forward :length 100))
+   (forward :length 1)
+   (up :angle pi|3 :curve-radius 20)
+   (forward :length 10)
+   (offset :delta -3 :to [:mask])
+   (forward :length 2)
+   (to :models [:mask]
+       (rotate :y pi)
+       (forward :length 2)
+       (offset :delta 3)
+       (forward :length 200))))
+
 (defn make-frame-support [result-name left-right-center? X Y]
   (let [Xpos (subvec (tf/translation-vector X) 0 2)
         Xdir (vec (take 2 (.getColumn X 2)))
@@ -1641,8 +1723,8 @@
            (forward :length forward-length)
            (op :angle (/ D 2) :curve-radius cr :cs 200)
            #_(let [l (- (* (magnitude Xdir) y-scalar) c)]
-             (when (> l 1)
-               (forward :length l)))
+               (when (> l 1)
+                 (forward :length l)))
            (rotate :x (- pi))
            (rotate :z pi|2)
            (insert :extrusion bolt-segment-mask
@@ -1700,6 +1782,45 @@
 
 #_(def center-frame-support
   (make-frame-support :center-frame-support :center))
+
+(def ^:export-model extruder-mold
+  (extrude
+   (result :name :extruder-mold
+           :expr (difference :body :mask))
+
+   (frame :name :mask :cross-section (m/circle (+ 0.1 4/2) 100))
+   (frame :name :body :cross-section (m/circle 9/2 100))
+   (forward :length 1.2)
+   (set :cross-section (m/circle (- 9/2 0.8) 100) :to [:mask])
+   (forward :length 10)
+   (hull
+    (forward :length 1)
+    (set :cross-section (m/circle 2 100) :to [:body])
+    (set :cross-section (m/circle 1 100) :to [:mask])
+    (translate :z 4)
+    (forward :length 0.1))))
+
+(def ^:export-model extruder-mold-with-thermistor
+  (let [outer-shape (m/hull (-> (m/circle (/ 10 2) 100)
+                                (m/translate [-2 0]))
+                            (-> (m/circle (/ 8 2) 100)
+                                (m/translate [2 0])))]
+    (extrude
+     (result :name :extruder-mold-with-thermistor
+             :expr (difference :body :feed-mask :thermistor-mask))
+
+     (frame :name :body
+            :cross-section outer-shape)
+     (frame :name :feed-mask :cross-section (m/circle (+ 0.3 4/2) 100))
+     (frame :name :thermistor-mask :cross-section (m/circle (/ 3.4 2) 100))
+     (translate :x 2 :to [:thermistor-mask])
+     (translate :x -2 :to [:feed-mask])
+     (forward :length 1.2)
+     (set :cross-section (m/offset outer-shape -0.8) :to [:feed-mask])
+     (translate :x 2 :to [:feed-mask])
+     (forward :length 9))))
+
+(u/in->mm 1/8)
 
 (def build-plate-support)
 
