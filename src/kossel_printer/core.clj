@@ -958,8 +958,8 @@
       :from :tower-support-mask
       :with []
       (frame :name :stepper-bolt-mask
-             :cross-section (m/union (for [x [15 -15]
-                                           y [15 -15]]
+             :cross-section (m/union (for [x [15.5 -15.5]
+                                           y [15.5 -15.5]]
                                        (-> (m/circle 1.6)
                                            (m/translate [x y])))) )
       (frame :name :stepper-shaft-hole
@@ -993,16 +993,12 @@
 
 (def ^:export-model base-tower-support
   (m/difference (m/transform (get-model tower-support :tower-support)
-                             (-> (lookup-transform printer-model :k0.e1/vertical-rod)
-                                 (m/translate [0 0 0])))
+                             (lookup-transform printer-model :k0.e1/vertical-rod))
                 (get-model tower-support :tower-support-bolt-holes)
                 (get-model printer-model :carriage-mask)
                 (get-model printer-model :side-rod-mask)
                 (get-model printer-model :body)
-                (get-model printer-model :heated-bed-mask) ))
-
-(m/union (get-model printer-model :body)
-         (get-model printer-model :carriage-mask))
+                (get-model printer-model :heated-bed-mask)))
 
 (def all-base-tower-supports
   (m/difference (m/union
@@ -1751,6 +1747,49 @@
                        printer-2-tf
                        (lookup-transform printer-model :k0.e2/frame-support-mount))))
 
+#_(let [m (get-model printer-model :body)
+      bounds (.Center (m/bounds m))
+      ret
+      (m/union (m/center m)
+               (-> (get-model printer-model :heated-bed-mask)
+                   (m/translate [(- (.x bounds)) 0 0])))]
+  (m/union ret (-> ret
+                   (m/rotate [0 0 T])
+                   (m/translate [40 430 0]))))
+
+(def ^:export-model linear-side-support
+  (extrude
+   (result :name :linear-side-support
+           :expr (difference :body :mask))
+   (frame :name :origin)
+
+   (branch
+    :from :origin :with []
+    (frame :name :mask :cross-section (m/circle 3/2))
+    (rotate :y pi|2)
+    (translate :z -10 :x -10)
+    (for [y [-10 10]]
+      (branch
+       :from :mask
+       (translate :y y)
+       (forward :length 2)
+       (set :cross-section (m/circle 5))
+       (forward :length 20))))
+
+   (branch
+    :from :origin :with []
+    (frame :name :body :cross-section (m/square 20 40 true))
+    (forward :length 210)
+    (left :angle pi|3 :curve-radius 10)
+    (branch
+     :from :body
+     :with []
+     (frame :name :mask :cross-section (m/circle 3/2))
+     (rotate :x pi)
+     (forward :length 2)
+     (set :cross-section (m/circle 5))
+     (forward :length 50)))))
+
 (def radial-print-farm
   (m/union (m/transform (get-model printer-model :body) printer-1-tf)
            #_(m/transform (get-model printer-model :heated-bed-mask) printer-1-tf)
@@ -1829,4 +1868,6 @@
   (export-models *ns* "glb")
 
   (export-models *ns* "f3z")
-  (export-models *ns* "stl"))
+  (export-models *ns* "stl")
+
+  )

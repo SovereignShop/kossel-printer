@@ -871,11 +871,11 @@ solid AssimpScene
   endloop
  endfacet
 
- facet normal -0.44721359 -0.89442718 0
+ facet normal -0.44721356 -0.89442718 0
   outer loop
   vertex 12.5 13.6499996 32.0099983
-  vertex 21.1000004 11.25 35.8499985
-  vertex 12.5 11.25 35.8499985
+  vertex 21.1000004 11.25 35.8595963
+  vertex 12.5 11.25 35.8595963
   endloop
  endfacet
 
@@ -897,16 +897,16 @@ solid AssimpScene
 
  facet normal 0.44721359 0.89442718 0
   outer loop
-  vertex 17 15.25 94
+  vertex 19.5 15.25 97
   vertex 12.5 15.25 0
   vertex 12.5 15.25 32
   endloop
  endfacet
 
- facet normal -1 5.96046448e-08 0
+ facet normal -1 5.96046519e-08 0
   outer loop
   vertex 12.5 13.6499996 32.0099983
-  vertex 12.5 11.25 35.8499985
+  vertex 12.5 11.25 35.8595963
   vertex 12.5 15.25 97
   endloop
  endfacet
@@ -1089,7 +1089,7 @@ solid AssimpScene
 
  facet normal 0 -0.44721359 0.89442718
   outer loop
-  vertex 28.9444447 11.25 32
+  vertex 23.5 11.25 32
   vertex 26 0 32
   vertex 26.2009621 0.75 32
   endloop
@@ -1097,7 +1097,7 @@ solid AssimpScene
 
  facet normal 0 -0.44721359 0.89442718
   outer loop
-  vertex 28.9444447 11.25 32
+  vertex 29.0027332 11.25 32
   vertex 26.2009621 0.75 32
   vertex 26.75 1.29903805 32
   endloop
@@ -1106,7 +1106,7 @@ solid AssimpScene
  facet normal 0 -0.44721359 0.89442718
   outer loop
   vertex 27.5 1.5 32
-  vertex 28.9444447 11.25 32
+  vertex 29.0027332 11.25 32
   vertex 26.75 1.29903805 32
   endloop
  endfacet
@@ -1114,23 +1114,15 @@ solid AssimpScene
  facet normal 0 -0.44721359 0.89442718
   outer loop
   vertex 28.25 1.29903805 32
-  vertex 28.9444447 11.25 32
+  vertex 29.0027332 11.25 32
   vertex 27.5 1.5 32
-  endloop
- endfacet
-
- facet normal 0 -0.89442718 0.44721359
-  outer loop
-  vertex 28.9444447 11.25 32
-  vertex 23.5 11.25 32
-  vertex 26 0 32
   endloop
  endfacet
 
  facet normal 0 -0.44721359 0.89442718
   outer loop
   vertex 28.7990379 0.75 32
-  vertex 28.9444447 11.25 32
+  vertex 29.0027332 11.25 32
   vertex 28.25 1.29903805 32
   endloop
  endfacet
@@ -1225,7 +1217,7 @@ solid AssimpScene
 
  facet normal 0 -1 0
   outer loop
-  vertex 21.1000004 11.25 35.8499985
+  vertex 21.1000004 11.25 35.8595963
   vertex 23.5 11.25 32.0099983
   vertex 12.5 11.25 97
   endloop
@@ -1233,7 +1225,7 @@ solid AssimpScene
 
  facet normal 0 -1 0
   outer loop
-  vertex 28.9444447 11.25 32
+  vertex 29.0027332 11.25 32
   vertex 12.5 11.25 97
   vertex 23.5 11.25 32.0099983
   endloop
@@ -1241,7 +1233,7 @@ solid AssimpScene
 
  facet normal -0.44721359 -0.89442718 0
   outer loop
-  vertex 21.1000004 11.25 35.8499985
+  vertex 21.1000004 11.25 35.8595963
   vertex 12.5 13.6499996 32.0099983
   vertex 23.5 13.6499996 32.0099983
   endloop
@@ -1258,7 +1250,7 @@ solid AssimpScene
  facet normal -0.44721359 -0.89442718 0
   outer loop
   vertex 23.5 11.25 32.0099983
-  vertex 21.1000004 11.25 35.8499985
+  vertex 21.1000004 11.25 35.8595963
   vertex 23.5 13.6499996 32.0099983
   endloop
  endfacet
@@ -1279,9 +1271,17 @@ solid AssimpScene
   endloop
  endfacet
 
+ facet normal 0 -0.89442718 0.44721359
+  outer loop
+  vertex 29.0027332 11.25 32
+  vertex 23.5 11.25 32
+  vertex 26.2009621 0.75 32
+  endloop
+ endfacet
+
  facet normal 0 -1 0
   outer loop
-  vertex 28.9444447 11.25 32
+  vertex 29.0027332 11.25 32
   vertex 23.5 11.25 32.0099983
   vertex 23.5 11.25 32
   endloop
@@ -1290,16 +1290,16 @@ solid AssimpScene
  facet normal 0 -0.89442718 0.44721359
   outer loop
   vertex 32.5 11.25 32
-  vertex 28.9444447 11.25 32
+  vertex 29.0027332 11.25 32
   vertex 28.7990379 0.75 32
   endloop
  endfacet
 
- facet normal 0 -1 0
+ facet normal -0.44721359 -0.89442718 0
   outer loop
   vertex 32.5 11.25 32
-  vertex 22.5 11.25 90
-  vertex 28.9444447 11.25 32
+  vertex 22.5 11.25 96.7380981
+  vertex 29.0027332 11.25 32
   endloop
  endfacet
 
@@ -1319,18 +1319,18 @@ solid AssimpScene
   endloop
  endfacet
 
- facet normal -0.44721359 -0.89442718 0
+ facet normal -0.44721356 -0.89442718 0
   outer loop
-  vertex 21.1000004 11.25 35.8499985
+  vertex 21.1000004 11.25 35.8595963
   vertex 12.5 11.25 97
-  vertex 12.5 11.25 35.8499985
+  vertex 12.5 11.25 35.8595963
   endloop
  endfacet
 
  facet normal -1 0 0
   outer loop
   vertex 12.5 15.25 97
-  vertex 12.5 11.25 35.8499985
+  vertex 12.5 11.25 35.8595963
   vertex 12.5 11.25 97
   endloop
  endfacet
@@ -1339,31 +1339,15 @@ solid AssimpScene
   outer loop
   vertex 12.5 15.25 32
   vertex 12.5 15.25 97
-  vertex 17 15.25 94
-  endloop
- endfacet
-
- facet normal 0.577350259 -0.577350259 0.577350259
-  outer loop
-  vertex 17 11.25 97
-  vertex 12.5 11.25 97
-  vertex 17 11.25 94
+  vertex 19.5 15.25 97
   endloop
  endfacet
 
  facet normal 0.577350259 -0.577350259 0.577350259
   outer loop
   vertex 12.5 11.25 97
-  vertex 17 11.25 97
+  vertex 19.5 11.25 97
   vertex 12.5 11.25 112
-  endloop
- endfacet
-
- facet normal 0.44721359 0.89442718 0
-  outer loop
-  vertex 17 15.25 97
-  vertex 17 15.25 94
-  vertex 12.5 15.25 97
   endloop
  endfacet
 
@@ -1383,17 +1367,25 @@ solid AssimpScene
   endloop
  endfacet
 
- facet normal 0.44721359 -0.89442718 0
+ facet normal 0 1 0
   outer loop
-  vertex 28.9444447 11.25 32
+  vertex 12.5 15.25 97
+  vertex 12.5 15.25 112
+  vertex 19.5 15.25 102.5
+  endloop
+ endfacet
+
+ facet normal 0 -0.902472258 0.430747867
+  outer loop
+  vertex 29.0027332 11.25 32
   vertex 20.5 11.25 90
   vertex 12.5 11.25 97
   endloop
  endfacet
 
- facet normal 0.44721359 -0.89442718 0
+ facet normal -0.56127435 -0.610192835 0.559138536
   outer loop
-  vertex 28.9444447 11.25 32
+  vertex 29.0027332 11.25 32
   vertex 22.5 11.25 90
   vertex 20.5 11.25 90
   endloop
@@ -1402,14 +1394,22 @@ solid AssimpScene
  facet normal 0.89442718 0.44721359 0
   outer loop
   vertex 12.5 15.25 0
-  vertex 17 15.25 94
-  vertex 20.5 15.25 94
+  vertex 19.5 15.25 97
+  vertex 19.5 15.25 91.5
+  endloop
+ endfacet
+
+ facet normal 0.89442718 0.44721359 0
+  outer loop
+  vertex 12.5 15.25 0
+  vertex 19.5 15.25 91.5
+  vertex 20.5 15.25 91.5
   endloop
  endfacet
 
  facet normal 0.734650254 0.313270956 0.601789415
   outer loop
-  vertex 20.5 15.25 94
+  vertex 20.5 15.25 91.5
   vertex 20.5 15.25 91.2879257
   vertex 12.5 15.25 0
   endloop
@@ -1423,26 +1423,42 @@ solid AssimpScene
   endloop
  endfacet
 
- facet normal 0 1 0
-  outer loop
-  vertex 12.5 15.25 0
-  vertex 22.5 15.25 91.2879257
-  vertex 28 15.25 94
-  endloop
- endfacet
-
  facet normal 0.44721359 0.89442718 0
   outer loop
   vertex 32.5 15.25 97
   vertex 12.5 15.25 0
-  vertex 28 15.25 94
+  vertex 22.5 15.25 91.2879257
+  endloop
+ endfacet
+
+ facet normal -0.89442718 -0.44721359 0
+  outer loop
+  vertex 29.0027332 11.25 32
+  vertex 22.5 11.25 91.5
+  vertex 22.5 11.25 90
+  endloop
+ endfacet
+
+ facet normal -0.89442718 -0.44721359 0
+  outer loop
+  vertex 29.0027332 11.25 32
+  vertex 22.5 11.25 96.7380981
+  vertex 22.5 11.25 91.5
+  endloop
+ endfacet
+
+ facet normal -0.44721359 -0.89442718 0
+  outer loop
+  vertex 32.5 11.25 32
+  vertex 22.5 11.25 97
+  vertex 22.5 11.25 96.7380981
   endloop
  endfacet
 
  facet normal 0.44721359 -0.89442718 0
   outer loop
   vertex 32.5 11.25 97
-  vertex 22.5 11.25 90
+  vertex 22.5 11.25 97
   vertex 32.5 11.25 32
   endloop
  endfacet
@@ -1455,42 +1471,50 @@ solid AssimpScene
   endloop
  endfacet
 
- facet normal 0.577350259 -0.577350259 0.577350259
+ facet normal 0 -0.478283286 0.878205538
   outer loop
-  vertex 17 11.25 94
+  vertex 19.5 11.25 91.5
   vertex 12.5 11.25 97
   vertex 20.5 11.25 90
   endloop
  endfacet
 
- facet normal 0.89442718 0 0.44721359
+ facet normal 0.577350259 -0.577350259 0.577350259
+  outer loop
+  vertex 19.5 11.25 97
+  vertex 12.5 11.25 97
+  vertex 19.5 11.25 91.5
+  endloop
+ endfacet
+
+ facet normal 0.44755435 -0.0390070826 0.893405557
   outer loop
   vertex 20.5 11.25 90
-  vertex 20.5 11.25 94
-  vertex 17 11.25 94
+  vertex 20.5 11.25 91.5
+  vertex 19.5 11.25 91.5
   endloop
  endfacet
 
- facet normal -0.577350259 -0.577350259 0.577350259
+ facet normal 1 0 0
   outer loop
-  vertex 22.5 11.25 90
-  vertex 28 11.25 94
-  vertex 22.5 11.25 94
+  vertex 12.5 11.25 112
+  vertex 19.5 11.25 97
+  vertex 19.5 11.25 102.5
+  endloop
+ endfacet
+
+ facet normal 1 0 0
+  outer loop
+  vertex 12.5 11.25 112
+  vertex 19.5 11.25 102.5
+  vertex 20.5 11.25 102.5
   endloop
  endfacet
 
  facet normal 0.89442718 0 0.44721359
   outer loop
   vertex 12.5 11.25 112
-  vertex 17 11.25 97
-  vertex 20.5 11.25 97
-  endloop
- endfacet
-
- facet normal 0.89442718 0 0.44721359
-  outer loop
-  vertex 12.5 11.25 112
-  vertex 20.5 11.25 97
+  vertex 20.5 11.25 102.5
   vertex 20.5 11.25 104
   endloop
  endfacet
@@ -1500,14 +1524,6 @@ solid AssimpScene
   vertex 12.5 11.25 112
   vertex 20.5 11.25 104
   vertex 22.5 11.25 104
-  endloop
- endfacet
-
- facet normal -0.577350259 -0.577350259 -0.577350259
-  outer loop
-  vertex 22.5 11.25 104
-  vertex 22.5 11.25 97
-  vertex 28 11.25 97
   endloop
  endfacet
 
@@ -1521,61 +1537,53 @@ solid AssimpScene
 
  facet normal 0.89442718 0 0.44721359
   outer loop
-  vertex 17 11.25 97
-  vertex 17 11.25 94
-  vertex 17 15.25 94
-  endloop
- endfacet
-
- facet normal 0.89442718 0.44721359 0
-  outer loop
-  vertex 20.5 11.25 97
-  vertex 17 11.25 97
-  vertex 17 15.25 97
+  vertex 20.5 11.25 91.5
+  vertex 20.5 15.25 91.5
+  vertex 19.5 11.25 91.5
   endloop
  endfacet
 
  facet normal 0.89442718 0 0.44721359
   outer loop
-  vertex 20.5 11.25 94
-  vertex 20.5 15.25 94
-  vertex 17 11.25 94
+  vertex 19.5 11.25 97
+  vertex 19.5 11.25 91.5
+  vertex 19.5 15.25 91.5
   endloop
  endfacet
 
  facet normal 0.89442718 0 0.44721359
   outer loop
-  vertex 17 15.25 94
-  vertex 17 11.25 94
-  vertex 20.5 15.25 94
+  vertex 19.5 15.25 91.5
+  vertex 19.5 11.25 91.5
+  vertex 20.5 15.25 91.5
   endloop
  endfacet
 
- facet normal 0.89442718 0.44721359 0
+ facet normal 1 0 0
   outer loop
-  vertex 17 15.25 97
-  vertex 17 11.25 97
-  vertex 17 15.25 94
+  vertex 19.5 11.25 97
+  vertex 19.5 15.25 91.5
+  vertex 19.5 15.25 97
   endloop
  endfacet
 
- facet normal 0.89442718 0.44721359 0
+ facet normal 0.448578626 -0.155196294 0.880165517
   outer loop
-  vertex 20.5 15.25 97
-  vertex 20.5 11.25 97
-  vertex 17 15.25 97
-  endloop
- endfacet
-
- facet normal 0.89442718 -0.44721359 0
-  outer loop
+  vertex 20.5 11.25 91.5
   vertex 20.5 11.25 90
-  vertex 22.5 11.25 90
   vertex 20.5 12.4655371 90.1063461
   endloop
  endfacet
 
- facet normal 0 -1 0
+ facet normal -0.448578626 -0.155196294 0.880165517
+  outer loop
+  vertex 20.5 12.4655371 90.1063461
+  vertex 20.5 11.25 90
+  vertex 22.5 11.25 90
+  endloop
+ endfacet
+
+ facet normal -0.89442718 -0.115746632 0.431975365
   outer loop
   vertex 20.5 12.4655371 90.1063461
   vertex 22.5 11.25 90
@@ -1583,11 +1591,27 @@ solid AssimpScene
   endloop
  endfacet
 
- facet normal 0 -0.422618181 0.906307817
+ facet normal 0.448578686 -0.305677444 0.839844286
+  outer loop
+  vertex 20.5 11.25 91.5
+  vertex 20.5 12.4655371 90.1063461
+  vertex 20.5 13.6441402 90.4221497
+  endloop
+ endfacet
+
+ facet normal -0.448578686 -0.305677444 0.839844286
   outer loop
   vertex 20.5 13.6441402 90.4221497
   vertex 20.5 12.4655371 90.1063461
   vertex 22.5 12.4655371 90.1063461
+  endloop
+ endfacet
+
+ facet normal 0.448578686 -0.446872413 0.774003983
+  outer loop
+  vertex 20.5 11.25 91.5
+  vertex 20.5 13.6441402 90.4221497
+  vertex 20.5 14.75 90.9378204
   endloop
  endfacet
 
@@ -1599,51 +1623,51 @@ solid AssimpScene
   endloop
  endfacet
 
- facet normal 1 0 0
+ facet normal -1 0 0
   outer loop
-  vertex 20.5 11.25 94
-  vertex 20.5 11.25 90
-  vertex 20.5 12.4655371 90.1063461
-  endloop
- endfacet
-
- facet normal 0.89442718 -0.189000592 0.405313164
-  outer loop
-  vertex 20.5 11.25 94
-  vertex 20.5 12.4655371 90.1063461
-  vertex 20.5 13.6441402 90.4221497
-  endloop
- endfacet
-
- facet normal 0.448578686 -0.446872413 0.774003983
-  outer loop
-  vertex 20.5 11.25 94
-  vertex 20.5 13.6441402 90.4221497
-  vertex 20.5 14.75 90.9378204
-  endloop
- endfacet
-
- facet normal 0 0 1
-  outer loop
+  vertex 22.5 12.4655371 90.1063461
   vertex 22.5 11.25 90
-  vertex 22.5 11.25 94
-  vertex 22.5 15.25 94
+  vertex 22.5 13.5498409 91.5
   endloop
  endfacet
 
  facet normal -1 0 0
   outer loop
+  vertex 22.5 13.6441402 90.4221497
   vertex 22.5 12.4655371 90.1063461
-  vertex 22.5 11.25 90
-  vertex 22.5 15.25 94
+  vertex 22.5 13.5498409 91.5
   endloop
  endfacet
 
- facet normal -0.577350259 0.577350199 -0.577350259
+ facet normal -1 0 0
   outer loop
-  vertex 28 11.25 97
-  vertex 22.5 11.25 97
-  vertex 22.5 15.25 97
+  vertex 22.5 11.25 91.5
+  vertex 22.5 13.5498409 91.5
+  vertex 22.5 11.25 90
+  endloop
+ endfacet
+
+ facet normal -1 0 0
+  outer loop
+  vertex 22.5 11.25 91.5
+  vertex 22.5 11.25 96.7380981
+  vertex 22.5 12.4655371 95.7672729
+  endloop
+ endfacet
+
+ facet normal -1 0 0
+  outer loop
+  vertex 22.5 13.5498409 91.5
+  vertex 22.5 11.25 91.5
+  vertex 22.5 12.4655371 95.7672729
+  endloop
+ endfacet
+
+ facet normal -1 0 0
+  outer loop
+  vertex 22.5 13.5498409 91.5
+  vertex 22.5 12.4655371 95.7672729
+  vertex 22.5 12.4655371 103.893654
   endloop
  endfacet
 
@@ -1663,9 +1687,17 @@ solid AssimpScene
   endloop
  endfacet
 
+ facet normal -1 0 0
+  outer loop
+  vertex 22.5 14.75 90.9378204
+  vertex 22.5 13.6441402 90.4221497
+  vertex 22.5 13.6441402 91.5
+  endloop
+ endfacet
+
  facet normal 0.44721359 -0.513023853 0.732670784
   outer loop
-  vertex 20.5 11.25 94
+  vertex 20.5 11.25 91.5
   vertex 20.5 14.75 90.9378204
   vertex 20.5 15.25 91.2879257
   endloop
@@ -1673,8 +1705,8 @@ solid AssimpScene
 
  facet normal 0.89442718 -0.256511927 0.366335392
   outer loop
-  vertex 20.5 15.25 94
-  vertex 20.5 11.25 94
+  vertex 20.5 15.25 91.5
+  vertex 20.5 11.25 91.5
   vertex 20.5 15.25 91.2879257
   endloop
  endfacet
@@ -1695,27 +1727,35 @@ solid AssimpScene
   endloop
  endfacet
 
- facet normal -0.89442718 0.44721359 0
+ facet normal -1 0 0
   outer loop
   vertex 22.5 13.6441402 90.4221497
-  vertex 22.5 12.4655371 90.1063461
-  vertex 22.5 15.25 94
+  vertex 22.5 13.5498409 91.5
+  vertex 22.5 13.6441402 91.5
   endloop
  endfacet
 
- facet normal 0 0.89442718 0.44721359
+ facet normal -1 0 0
   outer loop
-  vertex 22.5 15.25 94
-  vertex 22.5 11.25 94
-  vertex 28 15.25 94
+  vertex 22.5 13.6441402 91.5
+  vertex 22.5 13.5498409 91.5
+  vertex 22.5 13.6441402 103.57785
   endloop
  endfacet
 
- facet normal -0.89442718 0.44721359 0
+ facet normal -0.89442718 0.44721356 0
   outer loop
   vertex 22.5 14.75 90.9378204
-  vertex 22.5 13.6441402 90.4221497
-  vertex 22.5 15.25 94
+  vertex 22.5 13.6441402 91.5
+  vertex 22.5 15.25 91.5
+  endloop
+ endfacet
+
+ facet normal -0.44721359 0.89442718 0
+  outer loop
+  vertex 22.5 15.25 91.5
+  vertex 22.5 13.6441402 91.5
+  vertex 22.5 15.25 97
   endloop
  endfacet
 
@@ -1723,30 +1763,78 @@ solid AssimpScene
   outer loop
   vertex 22.5 15.25 91.2879257
   vertex 22.5 14.75 90.9378204
-  vertex 22.5 15.25 94
+  vertex 22.5 15.25 91.5
   endloop
  endfacet
 
- facet normal 0 1 0
+ facet normal -0.89442718 0.44721359 0
   outer loop
-  vertex 28 15.25 94
-  vertex 22.5 15.25 91.2879257
-  vertex 22.5 15.25 94
+  vertex 22.5 13.6441402 91.5
+  vertex 22.5 14.75 96.7380981
+  vertex 22.5 15.25 97
   endloop
  endfacet
 
- facet normal 0 1 0
+ facet normal -1 0 0
   outer loop
-  vertex 17 15.25 97
-  vertex 12.5 15.25 97
-  vertex 20.5 15.25 102.712074
+  vertex 22.5 13.6441402 91.5
+  vertex 22.5 14.75 103.06218
+  vertex 22.5 14.75 96.7380981
+  endloop
+ endfacet
+
+ facet normal -0.44721359 0.89442718 0
+  outer loop
+  vertex 22.5 15.25 97
+  vertex 22.5 14.75 96.7380981
+  vertex 22.5 15.25 97.0672913
+  endloop
+ endfacet
+
+ facet normal 0.577350259 0.577350259 -0.577350259
+  outer loop
+  vertex 19.5 11.25 102.5
+  vertex 19.5 11.25 97
+  vertex 19.5 15.25 102.5
+  endloop
+ endfacet
+
+ facet normal 0.577350259 0.577350259 -0.577350259
+  outer loop
+  vertex 20.5 11.25 102.5
+  vertex 19.5 11.25 102.5
+  vertex 19.5 15.25 102.5
   endloop
  endfacet
 
  facet normal 0.44721359 0.89442718 0
   outer loop
-  vertex 20.5 15.25 97
-  vertex 17 15.25 97
+  vertex 19.5 15.25 97
+  vertex 12.5 15.25 97
+  vertex 19.5 15.25 102.5
+  endloop
+ endfacet
+
+ facet normal 0.89442718 0.44721359 0
+  outer loop
+  vertex 19.5 15.25 102.5
+  vertex 19.5 11.25 97
+  vertex 19.5 15.25 97
+  endloop
+ endfacet
+
+ facet normal 0.89442718 0.44721359 0
+  outer loop
+  vertex 20.5 15.25 102.5
+  vertex 20.5 11.25 102.5
+  vertex 19.5 15.25 102.5
+  endloop
+ endfacet
+
+ facet normal 0.44721359 0.89442718 0
+  outer loop
+  vertex 20.5 15.25 102.5
+  vertex 19.5 15.25 102.5
   vertex 20.5 15.25 102.712074
   endloop
  endfacet
@@ -1759,15 +1847,7 @@ solid AssimpScene
   endloop
  endfacet
 
- facet normal 0.44721359 0.89442718 0
-  outer loop
-  vertex 12.5 15.25 112
-  vertex 32.5 15.25 112
-  vertex 12.5 15.25 97
-  endloop
- endfacet
-
- facet normal 0 -0.258817345 -0.96592629
+ facet normal 1 0 0
   outer loop
   vertex 22.5 12.4655371 103.893654
   vertex 20.5 11.25 104
@@ -1786,28 +1866,20 @@ solid AssimpScene
  facet normal 1 0 0
   outer loop
   vertex 20.5 11.25 104
-  vertex 20.5 11.25 97
-  vertex 20.5 15.25 97
+  vertex 20.5 11.25 102.5
+  vertex 20.5 15.25 102.5
   endloop
  endfacet
 
- facet normal 0.448578686 -0.305677444 -0.839844286
+ facet normal 1 0 0
   outer loop
   vertex 20.5 12.4655371 103.893654
   vertex 20.5 11.25 104
-  vertex 20.5 13.6441402 103.57785
+  vertex 20.5 15.25 102.5
   endloop
  endfacet
 
- facet normal 0.448578686 -0.446872413 -0.774003983
-  outer loop
-  vertex 20.5 13.6441402 103.57785
-  vertex 20.5 11.25 104
-  vertex 20.5 14.75 103.06218
-  endloop
- endfacet
-
- facet normal 0 -0.369266719 -0.929323494
+ facet normal -5.96046448e-08 -0.422618181 -0.906307817
   outer loop
   vertex 22.5 13.6441402 103.57785
   vertex 20.5 12.4655371 103.893654
@@ -1815,7 +1887,7 @@ solid AssimpScene
   endloop
  endfacet
 
- facet normal -0.448578686 -0.305677444 -0.839844286
+ facet normal -1 0 0
   outer loop
   vertex 22.5 12.4655371 103.893654
   vertex 20.5 12.4655371 103.893654
@@ -1825,37 +1897,45 @@ solid AssimpScene
 
  facet normal -0.89442718 -0.44721359 0
   outer loop
+  vertex 22.5 11.25 96.7380981
+  vertex 22.5 11.25 97
+  vertex 22.5 12.4655371 103.893654
+  endloop
+ endfacet
+
+ facet normal -1 0 0
+  outer loop
+  vertex 22.5 12.4655371 95.7672729
+  vertex 22.5 11.25 96.7380981
+  vertex 22.5 12.4655371 103.893654
+  endloop
+ endfacet
+
+ facet normal -0.44721359 -0.89442718 0
+  outer loop
+  vertex 22.5 12.4655371 103.893654
   vertex 22.5 11.25 97
   vertex 22.5 11.25 104
-  vertex 22.5 12.4655371 103.893654
   endloop
  endfacet
 
- facet normal -0.89442718 -0.189000592 -0.405313164
+ facet normal -1 0 0
   outer loop
-  vertex 22.5 11.25 97
+  vertex 22.5 13.5498409 91.5
   vertex 22.5 12.4655371 103.893654
   vertex 22.5 13.6441402 103.57785
   endloop
  endfacet
 
+ facet normal 0.89442718 -0.189000592 -0.405313164
+  outer loop
+  vertex 20.5 13.6441402 103.57785
+  vertex 20.5 12.4655371 103.893654
+  vertex 20.5 15.25 102.5
+  endloop
+ endfacet
+
  facet normal -0.89442718 -0.189000592 -0.405313164
-  outer loop
-  vertex 22.5 11.25 97
-  vertex 22.5 13.6441402 103.57785
-  vertex 22.5 14.75 103.06218
-  endloop
- endfacet
-
- facet normal 0.89442718 -0.256511927 -0.366335392
-  outer loop
-  vertex 20.5 14.75 103.06218
-  vertex 20.5 11.25 104
-  vertex 20.5 15.25 97
-  endloop
- endfacet
-
- facet normal -0.44721359 -0.378001183 -0.810626328
   outer loop
   vertex 22.5 13.6441402 103.57785
   vertex 20.5 13.6441402 103.57785
@@ -1863,11 +1943,11 @@ solid AssimpScene
   endloop
  endfacet
 
- facet normal 0.734650254 0.313270956 -0.601789415
+ facet normal 0.448578686 -0.446872413 -0.774003983
   outer loop
   vertex 20.5 14.75 103.06218
-  vertex 20.5 15.25 97
-  vertex 20.5 15.25 102.712074
+  vertex 20.5 13.6441402 103.57785
+  vertex 20.5 15.25 102.5
   endloop
  endfacet
 
@@ -1876,6 +1956,14 @@ solid AssimpScene
   vertex 22.5 14.75 103.06218
   vertex 20.5 13.6441402 103.57785
   vertex 20.5 14.75 103.06218
+  endloop
+ endfacet
+
+ facet normal 0.734650254 0.313270956 -0.601789415
+  outer loop
+  vertex 20.5 15.25 102.712074
+  vertex 20.5 14.75 103.06218
+  vertex 20.5 15.25 102.5
   endloop
  endfacet
 
@@ -1895,11 +1983,19 @@ solid AssimpScene
   endloop
  endfacet
 
- facet normal 0.44721359 0.89442718 0
+ facet normal -1 0 0
   outer loop
-  vertex 20.5 15.25 102.712074
-  vertex 12.5 15.25 97
-  vertex 32.5 15.25 112
+  vertex 22.5 13.6441402 91.5
+  vertex 22.5 13.6441402 103.57785
+  vertex 22.5 14.75 103.06218
+  endloop
+ endfacet
+
+ facet normal -0.44721359 0.89442718 0
+  outer loop
+  vertex 22.5 15.25 97.0672913
+  vertex 22.5 14.75 96.7380981
+  vertex 22.5 15.25 102.712074
   endloop
  endfacet
 
@@ -1907,39 +2003,31 @@ solid AssimpScene
   outer loop
   vertex 22.5 14.75 103.06218
   vertex 22.5 15.25 102.712074
-  vertex 22.5 11.25 97
+  vertex 22.5 14.75 96.7380981
   endloop
  endfacet
 
- facet normal -0.44721359 0.89442718 0
+ facet normal 0.44721359 0.89442718 0
   outer loop
-  vertex 22.5 15.25 97
-  vertex 22.5 11.25 97
-  vertex 22.5 15.25 102.712074
+  vertex 19.5 15.25 102.5
+  vertex 12.5 15.25 112
+  vertex 32.5 15.25 112
   endloop
  endfacet
 
- facet normal 0 -1 0
+ facet normal 0.44721359 0.89442718 0
   outer loop
-  vertex 28 11.25 94
-  vertex 22.5 11.25 90
-  vertex 32.5 11.25 97
+  vertex 20.5 15.25 102.712074
+  vertex 19.5 15.25 102.5
+  vertex 32.5 15.25 112
   endloop
  endfacet
 
- facet normal 0 0 -1
-  outer loop
-  vertex 28 11.25 94
-  vertex 32.5 11.25 97
-  vertex 28 11.25 97
-  endloop
- endfacet
-
- facet normal 0.577350259 -0.577350259 -0.577350259
+ facet normal 0.44721359 -0.89442718 0
   outer loop
   vertex 32.5 11.25 97
   vertex 22.5 11.25 104
-  vertex 28 11.25 97
+  vertex 22.5 11.25 97
   endloop
  endfacet
 
@@ -1948,46 +2036,22 @@ solid AssimpScene
   vertex 12.5 11.25 112
   vertex 32.5 11.25 97
   vertex 32.5 11.25 112
-  endloop
- endfacet
-
- facet normal -0.577350259 0.577350259 0.577350259
-  outer loop
-  vertex 28 11.25 94
-  vertex 28 15.25 94
-  vertex 22.5 11.25 94
-  endloop
- endfacet
-
- facet normal -0.577350259 0.577350259 -0.577350259
-  outer loop
-  vertex 28 11.25 97
-  vertex 28 15.25 97
-  vertex 28 11.25 94
-  endloop
- endfacet
-
- facet normal 0 0.89442718 -0.44721359
-  outer loop
-  vertex 28 15.25 97
-  vertex 28 11.25 97
-  vertex 22.5 15.25 97
-  endloop
- endfacet
-
- facet normal -0.44721359 0.89442718 0
-  outer loop
-  vertex 28 15.25 94
-  vertex 28 11.25 94
-  vertex 28 15.25 97
   endloop
  endfacet
 
  facet normal 0.44721359 0.89442718 0
   outer loop
   vertex 32.5 15.25 97
-  vertex 28 15.25 94
-  vertex 28 15.25 97
+  vertex 22.5 15.25 91.2879257
+  vertex 22.5 15.25 91.5
+  endloop
+ endfacet
+
+ facet normal 0.44721359 0.89442718 0
+  outer loop
+  vertex 32.5 15.25 97
+  vertex 22.5 15.25 91.5
+  vertex 22.5 15.25 97
   endloop
  endfacet
 
@@ -2002,16 +2066,16 @@ solid AssimpScene
  facet normal 0.44721359 0.89442718 0
   outer loop
   vertex 22.5 15.25 97
-  vertex 22.5 15.25 102.712074
+  vertex 22.5 15.25 97.0672913
   vertex 32.5 15.25 112
   endloop
  endfacet
 
  facet normal 0.44721359 0.89442718 0
   outer loop
-  vertex 28 15.25 97
-  vertex 22.5 15.25 97
   vertex 32.5 15.25 112
+  vertex 22.5 15.25 97.0672913
+  vertex 22.5 15.25 102.712074
   endloop
  endfacet
 
@@ -2033,9 +2097,9 @@ solid AssimpScene
 
  facet normal 0.89442718 0.44721359 0
   outer loop
-  vertex 32.5 15.25 112
   vertex 32.5 15.25 97
-  vertex 28 15.25 97
+  vertex 22.5 15.25 97
+  vertex 32.5 15.25 112
   endloop
  endfacet
 
