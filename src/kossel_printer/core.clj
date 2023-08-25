@@ -1780,7 +1780,7 @@
     :from :origin :with []
     (frame :name :body :cross-section (m/square 20 40 true))
     (forward :length 210)
-    (left :angle pi|3 :curve-radius 10)
+    (left :angle pi|6 :curve-radius 10)
     (branch
      :from :body
      :with []
