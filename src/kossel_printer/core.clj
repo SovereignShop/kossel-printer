@@ -1579,6 +1579,8 @@
     (forward :length (+ 26 fan-h))
     (save-transform :frame :center-triangle-body :name :extruder-assembly-top))))
 
+(get-model extruder-assembly-body-fisheye :center-triangle-body)
+
 (def coupling-mask-segment
   (extrude
    (result :name :coupling-mask-segment :expr :coupling-mask)
@@ -1859,9 +1861,72 @@
      (translate :x 2 :to [:feed-mask])
      (forward :length 9))))
 
-(u/in->mm 1/8)
+(def piezo-radius 25/2)
 
-(def build-plate-support)
+(get-model extruder-assembly :center-triangle-body)
+
+(def ^:export-model piezo-mount
+  (extrude
+   (result :name :piezo-mount :expr (difference (union :body #_(difference :center-triangle-body
+                                                                         (-> (m/square 1000 1000 true)
+                                                                             (m/extrude 1000)
+                                                                             (m/translate [0 0 4]))))
+                                                :mask))
+
+   (frame :name :body
+          :cross-section (m/hull (-> (m/circle 6)
+                                     (m/translate [0 13]))
+                                 (-> (m/circle 6)
+                                     (m/translate [0 -18]))))
+
+   (insert :extrusion extruder-assembly-body-fisheye
+           :models [:center-triangle-body])
+
+   (rotate :z (- pi|6))
+
+   (branch
+    :from :body
+    (set :cross-section (m/circle 17/2))
+    (frame :name :mask :cross-section (m/circle 6/2))
+    (forward :length 10.95))
+
+   (for [i (range 3)]
+     (branch
+      :from :body
+      (rotate :z (* i 2 pi|3))
+      (translate :y 22)
+
+      (frame :name :mask
+             :cross-section (m/circle 3/2))
+
+      (forward :length 4)
+
+      (set :cross-section
+           (m/square 12
+                     (* 2 (+ piezo-radius 1/2))
+                     true)
+           :to [:mask])
+
+      (forward :length 1/2)
+
+      (hull
+       (forward :length 0.1)
+       (set :cross-section
+            (m/circle (+ piezo-radius 0.2) 60)
+            :to [:mask])
+       (translate :z 3)
+       (forward :length 0.01))
+
+      (hull
+       (forward :length 0.01)
+       (set :cross-section
+            (let [c (m/circle (+ piezo-radius -1) 60)]
+              c
+              #_(m/hull c (m/translate c [(+ piezo-radius 1/2) 0])))
+            :to [:mask])
+       (translate :z 2)
+       (forward :length 0.1))
+      (forward :length 1.2 :to [:body])))))
 
 (comment
 
