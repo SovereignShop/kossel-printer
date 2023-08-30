@@ -1863,14 +1863,24 @@
 
 (def piezo-radius 25/2)
 
-(get-model extruder-assembly :center-triangle-body)
-
 (def ^:export-model piezo-mount
   (extrude
    (result :name :piezo-mount :expr (difference (union :body #_(difference :center-triangle-body
-                                                                         (-> (m/square 1000 1000 true)
-                                                                             (m/extrude 1000)
-                                                                             (m/translate [0 0 4]))))
+                                                                           (-> (m/square 1000 1000 true)
+                                                                               (m/extrude 1000)
+                                                                               (m/translate [0 0 4])))
+                                                       (-> (m/difference (u/curved-triangle 72.5 70)
+                                                                         (u/curved-triangle 70.5 68))
+                                                           (m/rotate (- T|3))
+                                                           (m/extrude 4)
+                                                           (m/center)
+                                                           (m/translate [-5.3 0 0])
+                                                           (m/difference
+                                                            (m/union (for [i (range 3)]
+                                                                       (-> (m/square 7 200 true)
+                                                                           (m/translate [0 100])
+                                                                           (m/rotate (+ T|2 (* i 2/3 T)))
+                                                                           (m/extrude 5)))) )) )
                                                 :mask))
 
    (frame :name :body
@@ -1886,8 +1896,8 @@
 
    (branch
     :from :body
-    (set :cross-section (m/circle 17/2))
-    (frame :name :mask :cross-section (m/circle 6/2))
+    (set :cross-section (m/circle 23/2))
+    (frame :name :mask :cross-section (m/circle (- 21/2 1.6)))
     (forward :length 10.95))
 
    (for [i (range 3)]

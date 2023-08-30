@@ -4,6 +4,8 @@
    [sicmutils.env :as e]
    [sicmutils.calculus.derivative :as cd]
    [plexus.transforms :as tf]
+   [plexus.triangles :as triangles]
+   [plexus.core :as p]
    [clj-manifold3d.core :as m]))
 
 (defn in->mm [inches]
@@ -60,5 +62,47 @@
               (f x)))
            (f (- length pi))))))
 
-(defn in->mm [inches]
-  (* inches 25.4))
+(defn arc-segment [side-length curve-radius props]
+  (let [angle (triangles/abc->A side-length curve-radius curve-radius)
+        r (- (/ Math/PI 2) (/ (- Math/PI angle) 2))]
+    [(p/rotate :y r)
+     (p/left :angle angle :curve-radius curve-radius :props props)
+     (p/rotate :y r)]))
+
+(defn triangle-centroid [l]
+  (let [cx (/ l 2)
+        cy (/ (* (Math/sqrt 3) l) 6)]
+    {:x cx, :y cy}))
+
+(defn curved-triangle-points [side-length curve-radius]
+  (p/points
+   :axes [:x :y]
+   (p/frame :name :origin :cs 20)
+   (p/rotate :x (- (/ Math/PI 2)))
+   (let [{:keys [x y]} (triangle-centroid side-length)]
+     (p/translate :x x :y y))
+   (p/rotate :y (- (/ Math/PI 3)))
+   (for [_ (range 3)]
+     [(arc-segment side-length curve-radius {})
+      (p/rotate :y (- (* 2 (/ Math/PI 3))))])))
+
+(defn curved-triangle [side-length curve-radius]
+  (m/cross-section (curved-triangle-points side-length curve-radius)))
+
+(defn thread [section pitch radius steps-per-revolution n-revolutions]
+  (m/loft (m/union (for [i (range n-revolutions)]
+                     (-> section
+                         (m/translate [0 (- (* i pitch))]))))
+          (for [step (range (inc steps-per-revolution))]
+            (-> (m/frame 1)
+                (m/rotate [0 0 (* (/ (* 2 Math/PI) steps-per-revolution) step)])
+                (m/translate [radius 0 (* step (/ pitch steps-per-revolution))])
+                (m/rotate [(- (/ Math/PI 2)) 0 0])))))
+
+(comment
+
+  (m/union
+   (m/cylinder (* 6 15) 40 40 100)
+   (thread (m/circle 3 4) 6 40 100 15))
+
+  )
